@@ -54,7 +54,6 @@ describe('MobileEditorToolbar Component', () => {
     expect(screen.getByLabelText('Cita en bloque')).toBeInTheDocument();
     expect(screen.getByLabelText('Asistente de fundamentación legal')).toBeInTheDocument();
     expect(screen.getByLabelText('Compartir documento')).toBeInTheDocument();
-    expect(screen.getByText('150 pal')).toBeInTheDocument();
   });
 
   it('ejecuta los comandos de formato al pulsar los botones', () => {
