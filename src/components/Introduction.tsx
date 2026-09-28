@@ -67,15 +67,6 @@ export function Introduction({ onOpenStation }: IntroductionProps) {
             <Sparkles size={12} className="text-legal-gold" /> Plataforma de Consulta e Ingeniería Jurídica
           </span>
 
-          {/* Headline & Value Proposition */}
-          <div className="space-y-2 mt-1">
-            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white leading-tight">
-              Inteligencia y Redacción Jurídica Corporativa
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl mx-auto">
-              Estudio local de redacción contractual, fundamentación en {CORPUS_STATS.instruments} leyes federales oficiales y monitoreo en tiempo real de contrataciones públicas.
-            </p>
-          </div>
 
           {/* REGLA DEL BOTÓN ÚNICO (Pendiente.md): El único botón primario con fondo sólido */}
           <div className="pt-2">
