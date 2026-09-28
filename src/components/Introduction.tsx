@@ -30,195 +30,211 @@ export function Introduction({ onOpenStation }: IntroductionProps) {
   };
 
   return (
-    <div className="relative flex min-h-screen w-screen select-none items-center justify-center overflow-x-hidden bg-legal-shell font-sans text-white p-4 sm:p-6 md:py-12">
+    <div className="relative flex min-h-screen w-screen select-none items-center justify-center overflow-x-hidden bg-legal-shell font-sans text-white p-4 sm:p-6 md:py-8">
       {/* Ambient Lighting & Depth */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[15%] -left-[10%] w-[65%] h-[65%] rounded-full bg-[radial-gradient(circle,rgba(197,160,89,0.12)_0%,transparent_70%)] filter blur-3xl" />
-        <div className="absolute -bottom-[20%] -right-[10%] w-[65%] h-[65%] rounded-full bg-[radial-gradient(circle,rgba(30,58,95,0.28)_0%,transparent_75%)] filter blur-3xl" />
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-legal-gold/40 to-transparent" />
+        <div className="absolute -top-[15%] -left-[10%] w-[60%] h-[60%] rounded-full bg-[radial-gradient(circle,rgba(197,160,89,0.10)_0%,transparent_70%)] filter blur-3xl" />
+        <div className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-[radial-gradient(circle,rgba(30,58,95,0.22)_0%,transparent_75%)] filter blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-legal-gold/30 to-transparent" />
       </div>
 
       {/* Main Presentation Container */}
       <main
-        className={`relative z-10 flex w-full max-w-4xl flex-col items-center gap-6 sm:gap-8 text-center py-4 sm:py-6 transition-all duration-300 ${
+        className={`relative z-10 flex w-full max-w-4xl flex-col items-center gap-6 sm:gap-8 text-center py-4 transition-all duration-300 ${
           isEntering ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
         }`}
       >
-        {/* Brand Header */}
-        <div className="flex flex-col items-center gap-4 sm:gap-4">
-          <div className="w-full max-w-[360px] sm:max-w-[480px] md:max-w-[580px] flex justify-center">
+        {/* =========================================================================
+            NIVEL 1: HERO FOCUS (Punto focal unificado y llamada a la acción principal)
+            ========================================================================= */}
+        <header className="flex flex-col items-center gap-3 sm:gap-4 max-w-2xl">
+          {/* Proportioned Brand Lockup */}
+          <div className="w-full max-w-[240px] sm:max-w-[300px] flex justify-center">
             <img
               src={logoUrl}
               alt="Logotipo Lex Corporativo"
-              width={580}
-              height={458}
+              width={300}
+              height={237}
               loading="eager"
               fetchPriority="high"
               decoding="async"
-              className="w-full h-auto object-contain drop-shadow-[0_14px_35px_rgba(197,160,89,0.32)] transition-transform duration-300 hover:scale-[1.02]"
+              className="w-full h-auto object-contain drop-shadow-[0_10px_25px_rgba(197,160,89,0.28)]"
             />
           </div>
 
-          <span className="inline-flex items-center gap-2 rounded-full border border-legal-gold/30 bg-legal-gold/10 px-4 py-1 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-legal-gold shadow-card">
-            <Sparkles size={13} /> Plataforma de Consulta e Ingeniería Jurídica
+          {/* Category Tag */}
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-legal-gold/30 bg-legal-gold/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-legal-gold shadow-card">
+            <Sparkles size={12} className="text-legal-gold" /> Plataforma de Consulta e Ingeniería Jurídica
           </span>
-        </div>
 
-        {/* Primary Interactive Cards: Core Web Modules (3-Column Grid) */}
-        <div className="w-full grid gap-4 md:grid-cols-3 text-left">
-          {/* Card 1: Ingeniería Jurídica (Primary Interactive Hub) */}
-          <div className="relative group rounded-2xl border border-legal-gold/40 bg-gradient-to-b from-slate-900/95 to-slate-950/95 p-5 shadow-premium backdrop-blur-md transition-all duration-300 hover:border-legal-gold/70 hover:shadow-dialog hover:shadow-legal-gold/15 flex flex-col justify-between">
-            <div>
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-legal-gold/30 bg-legal-gold/15 text-legal-gold">
-                  <FilePenLine size={20} />
-                </span>
-                <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                  Local · 25 instrumentos
-                </span>
-              </div>
-              <h2 className="font-serif text-base font-bold text-white transition group-hover:text-legal-gold sm:text-lg">
-                Ingeniería Jurídica
-              </h2>
-              <p className="mt-2 text-xs leading-relaxed text-slate-300">
-                Redacta instrumentos corporativos con variables guiadas, importa DOCX/PDF y estructura contratos con autoguardado local.
-              </p>
-              <ul className="mt-3 space-y-2 border-t border-slate-800/60 pt-3 text-[11px] text-slate-400">
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-legal-gold">•</span>
-                  <span><strong>25 documentos:</strong> Asambleas, poderes, contratos mercantiles y laborales.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-legal-gold">•</span>
-                  <span><strong>Importación:</strong> Procesamiento local de archivos DOCX y PDF.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-legal-gold">•</span>
-                  <span><strong>Privacidad:</strong> Sin almacenamiento en la nube, sin rastreo ni telemetría.</span>
-                </li>
-              </ul>
-            </div>
-            <div className="mt-5 border-t border-slate-800/80 pt-3">
-              <button
-                type="button"
-                onClick={() => handleStart('estudio')}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-legal-gold hover:bg-legal-goldhover text-slate-950 px-4 py-3 text-xs font-bold transition shadow-premium group-hover:scale-[1.01] active:scale-95 cursor-pointer"
-              >
-                <span>Abrir Ingeniería Jurídica</span>
-                <ArrowRight size={15} />
-              </button>
-            </div>
+          {/* Headline & Value Proposition */}
+          <div className="space-y-2 mt-1">
+            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white leading-tight">
+              Inteligencia y Redacción Jurídica Corporativa
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl mx-auto">
+              Estudio local de redacción contractual, fundamentación en {CORPUS_STATS.instruments} leyes federales oficiales y monitoreo en tiempo real de contrataciones públicas.
+            </p>
           </div>
 
-          {/* Card 2: Fundamentador Jurídico (Federal Legal Corpus) */}
-          <div className="relative group rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-premium backdrop-blur-md transition-all duration-300 hover:border-blue-500/40 hover:bg-slate-900/90 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
-                  <BookOpenCheck size={20} />
-                </span>
-                <span className="rounded-md bg-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-300 uppercase tracking-wider">
-                  {CORPUS_STATS.provisions.toLocaleString('es-MX')} disposiciones · {CORPUS_STATS.instruments} leyes
-                </span>
-              </div>
-              <h2 className="font-serif text-base sm:text-lg font-bold text-white group-hover:text-blue-300 transition">
-                Fundamentador Jurídico
-              </h2>
-              <p className="mt-2 text-xs text-slate-300 leading-relaxed">
-                Búsqueda normativa instantánea entre {CORPUS_STATS.provisions.toLocaleString('es-MX')} artículos de {CORPUS_STATS.instruments} leyes federales con motor local SQLite.
-              </p>
-              <ul className="mt-3 space-y-2 border-t border-slate-800/60 pt-3 text-[11px] text-slate-400">
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-blue-400">•</span>
-                  <span><strong>5 materias:</strong> Laboral, Mercantil, Fiscal, Aduanal y Comercio Exterior.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-blue-400">•</span>
-                  <span><strong>Fuentes:</strong> Textos vigentes del DOF y Cámara de Diputados.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-blue-400">•</span>
-                  <span><strong>Motor:</strong> SQLite WASM determinista en navegador, sin latencia de red.</span>
-                </li>
-              </ul>
-            </div>
+          {/* REGLA DEL BOTÓN ÚNICO (Pendiente.md): El único botón primario con fondo sólido */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => handleStart('estudio')}
+              className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-legal-gold hover:bg-legal-goldhover text-slate-950 px-6 py-3.5 text-xs sm:text-sm font-bold shadow-premium hover:shadow-dialog hover:shadow-legal-gold/20 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+            >
+              <span>Abrir Ingeniería Jurídica</span>
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        </header>
 
-            <div className="mt-5 pt-3 border-t border-slate-800/80">
-              <button
-                type="button"
-                onClick={() => handleStart('normativa')}
-                className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 px-4 py-3 text-xs font-bold transition hover:border-slate-600 hover:text-white group-hover:scale-[1.01] active:scale-95 cursor-pointer"
-              >
-                <span>Consultar Fundamentador</span>
-                <ArrowRight size={15} />
-              </button>
-            </div>
+        {/* =========================================================================
+            NIVEL 2: SELECTOR DE MÓDULOS (Tarjetas secundarias limpias, sin muros de viñetas)
+            ========================================================================= */}
+        <section className="w-full space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+              Módulos de Trabajo Especializados
+            </h2>
+            <span className="text-[10px] text-slate-400">Acceso directo sin registro</span>
           </div>
 
-          {/* Card 3: Radar de Licitaciones Públicas (CompraNet) */}
-          <div className="relative group rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-premium backdrop-blur-md transition-all duration-300 hover:border-amber-500/40 hover:bg-slate-900/90 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 text-legal-gold">
-                  <Landmark size={20} />
-                </span>
-                <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 uppercase tracking-wider">
-                  {LICITACIONES_STATS.total.toLocaleString('es-MX')} procedimientos oficiales
-                </span>
+          <div className="grid gap-4 md:grid-cols-3 text-left">
+            {/* Módulo 1: Ingeniería Jurídica */}
+            <div
+              onClick={() => handleStart('estudio')}
+              className="group relative rounded-2xl border border-legal-gold/30 bg-gradient-to-b from-slate-900/90 to-slate-950/90 p-5 shadow-card backdrop-blur-md transition-all duration-200 hover:border-legal-gold/70 hover:shadow-premium flex flex-col justify-between cursor-pointer"
+            >
+              <div>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-legal-gold/30 bg-legal-gold/15 text-legal-gold">
+                    <FilePenLine size={18} />
+                  </span>
+                  <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                    25 documentos: Asambleas y contratos
+                  </span>
+                </div>
+                <h3 className="font-serif text-base font-bold text-white transition group-hover:text-legal-gold">
+                  Ingeniería Jurídica
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-300">
+                  Redacción estructurada con variables guiadas e importación local DOCX/PDF. Sin almacenamiento en la nube, sin rastreo ni telemetría.
+                </p>
               </div>
-              <h2 className="font-serif text-base sm:text-lg font-bold text-white group-hover:text-legal-gold transition">
-                Radar de Licitaciones
-              </h2>
-              <p className="mt-2 text-xs text-slate-300 leading-relaxed">
-                Monitoreo oficial de contrataciones públicas federales (CompraNet) y estatales para proveedores y consultores.
-              </p>
-              <ul className="mt-3 space-y-2 border-t border-slate-800/60 pt-3 text-[11px] text-slate-400">
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-amber-400">•</span>
-                  <span><strong>Cobertura:</strong> CompraNet federal + compras estatales (Yucatán).</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-amber-400">•</span>
-                  <span><strong>Seguimiento:</strong> Convocatorias, bases, juntas de aclaraciones y plazos.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-amber-400">•</span>
-                  <span><strong>Filtros:</strong> Por dependencia, carácter nacional/internacional y estatus.</span>
-                </li>
-              </ul>
+
+              <div className="mt-4 pt-3 border-t border-slate-800/80">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStart('estudio');
+                  }}
+                  className="flex w-full items-center justify-between rounded-lg border border-legal-gold/30 bg-legal-gold/10 px-3 py-2 text-xs font-semibold text-legal-gold transition group-hover:bg-legal-gold group-hover:text-slate-950"
+                >
+                  <span>Redactar Instrumentos</span>
+                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                </button>
+              </div>
             </div>
 
-            <div className="mt-5 pt-3 border-t border-slate-800/80">
-              <button
-                type="button"
-                onClick={() => handleStart('licitaciones')}
-                className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 px-4 py-3 text-xs font-bold transition hover:border-slate-600 hover:text-white group-hover:scale-[1.01] active:scale-95 cursor-pointer"
-              >
-                <span>Explorar Radar</span>
-                <ArrowRight size={15} />
-              </button>
+            {/* Módulo 2: Fundamentador Jurídico */}
+            <div
+              onClick={() => handleStart('normativa')}
+              className="group relative rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-card backdrop-blur-md transition-all duration-200 hover:border-blue-500/50 hover:bg-slate-900/90 hover:shadow-premium flex flex-col justify-between cursor-pointer"
+            >
+              <div>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400">
+                    <BookOpenCheck size={18} />
+                  </span>
+                  <span className="rounded-md bg-blue-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-300">
+                    5 materias: {CORPUS_STATS.instruments} leyes federales
+                  </span>
+                </div>
+                <h3 className="font-serif text-base font-bold text-white transition group-hover:text-blue-300">
+                  Fundamentador Jurídico
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-300">
+                  Consulta en Laboral, Mercantil, Fiscal, Aduanal y Comercio Exterior con motor SQLite WASM determinista en navegador.
+                </p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-800/80">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStart('normativa');
+                  }}
+                  className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs font-semibold text-slate-300 transition group-hover:border-blue-500/60 group-hover:bg-blue-600 group-hover:text-white"
+                >
+                  <span>Consultar Fundamentador</span>
+                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Módulo 3: Radar de Licitaciones */}
+            <div
+              onClick={() => handleStart('licitaciones')}
+              className="group relative rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-card backdrop-blur-md transition-all duration-200 hover:border-amber-500/50 hover:bg-slate-900/90 hover:shadow-premium flex flex-col justify-between cursor-pointer"
+            >
+              <div>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400">
+                    <Landmark size={18} />
+                  </span>
+                  <span className="rounded-md bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+                    {LICITACIONES_STATS.total.toLocaleString('es-MX')} licitaciones
+                  </span>
+                </div>
+                <h3 className="font-serif text-base font-bold text-white transition group-hover:text-amber-300">
+                  Radar de Licitaciones
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-300">
+                  CompraNet federal + compras estatales (Yucatán) con seguimiento de convocatorias, bases, juntas de aclaraciones y plazos.
+                </p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-800/80">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStart('licitaciones');
+                  }}
+                  className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs font-semibold text-slate-300 transition group-hover:border-amber-500/60 group-hover:bg-amber-600 group-hover:text-white"
+                >
+                  <span>Explorar Radar</span>
+                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Secondary Station Showcase: Desktop App for Windows */}
-        <div className="w-full rounded-2xl border border-legal-gold/30 bg-slate-950/80 p-4 sm:p-5 shadow-premium backdrop-blur-sm transition-all hover:border-legal-gold/50">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+        {/* =========================================================================
+            NIVEL 3: ACCESO SECUNDARIO DESKTOP (Barra horizontal refinada, no invasiva)
+            ========================================================================= */}
+        <aside className="w-full rounded-xl border border-slate-800/80 bg-slate-900/40 p-3.5 sm:px-5 sm:py-3 shadow-card backdrop-blur-sm transition-colors hover:border-legal-gold/40">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
             <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 border border-legal-gold/40 text-legal-gold">
-                <HardDrive size={22} />
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-900 border border-legal-gold/30 text-legal-gold">
+                <HardDrive size={18} />
               </span>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-serif text-sm sm:text-base font-bold text-white">
+                  <span className="text-xs sm:text-sm font-semibold text-white">
                     Lex Corporativo Desktop
                   </span>
-                  <span className="rounded-md bg-legal-gold/20 px-2 py-0.5 text-[9px] font-bold text-legal-gold uppercase tracking-wider">
+                  <span className="rounded bg-legal-gold/20 px-1.5 py-0.5 text-[9px] font-bold text-legal-gold uppercase tracking-wider">
                     Windows .EXE
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1 leading-snug">
-                  Estación de trabajo local para auditoría contractual en 5 materias, redacción en Word/PDF y bóveda de expedientes privada (BYOK).
+                <p className="text-[11px] text-slate-400 leading-tight">
+                  Estación de trabajo local para auditoría en 5 materias, redacción Word/PDF y expedientes privados.
                 </p>
               </div>
             </div>
@@ -226,28 +242,30 @@ export function Introduction({ onOpenStation }: IntroductionProps) {
             <button
               type="button"
               onClick={() => handleStart('desktop')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-legal-gold/40 bg-legal-gold/10 hover:bg-legal-gold text-legal-gold hover:text-slate-950 px-5 py-2 text-xs font-bold transition shrink-0 cursor-pointer shadow-card active:scale-95"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white px-3.5 py-1.5 text-xs font-medium transition shrink-0 cursor-pointer active:scale-95"
             >
               <span>Ficha Técnica Desktop</span>
-              <ArrowRight size={14} />
+              <ArrowRight size={13} />
             </button>
           </div>
-        </div>
+        </aside>
 
-        {/* Trust Badges */}
-        <div className="flex flex-wrap justify-center items-center gap-4 text-[11px] font-medium text-slate-400">
-          <span className="flex items-center gap-2">
-            <Zap size={13} className="text-legal-gold" /> Sin registro ni costo
+        {/* =========================================================================
+            TRUST BAR & PRIVACY (Garantías institucionales discretas)
+            ========================================================================= */}
+        <footer className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[11px] font-medium text-slate-400 pt-1">
+          <span className="flex items-center gap-1.5">
+            <Zap size={12} className="text-legal-gold" /> Sin registro ni costo
           </span>
-          <span className="text-slate-700">•</span>
-          <span className="flex items-center gap-2">
-            <Scale size={13} className="text-blue-400" /> Legislación federal oficial
+          <span className="text-slate-700 hidden sm:inline">•</span>
+          <span className="flex items-center gap-1.5">
+            <Scale size={12} className="text-blue-400" /> Legislación federal oficial
           </span>
-          <span className="text-slate-700">•</span>
-          <span className="flex items-center gap-2">
-            <ShieldCheck size={13} className="text-emerald-400" /> 100% privado en navegador
+          <span className="text-slate-700 hidden sm:inline">•</span>
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck size={12} className="text-emerald-400" /> 100% privado en navegador
           </span>
-        </div>
+        </footer>
       </main>
     </div>
   );
