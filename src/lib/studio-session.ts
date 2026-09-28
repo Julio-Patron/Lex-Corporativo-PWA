@@ -2,7 +2,7 @@ import type { LegalArticle, LegalCitation, StudioDocument } from '../types';
 import { studioStorage } from './studio-storage';
 
 const EMPTY_TITLE = '';
-const EMPTY_HTML = '<p>Comienza a redactar tu contrato, convenio o escrito aquí…</p>';
+const EMPTY_HTML = '<h2>Título</h2><p></p>';
 const PENDING_CITATION = 'lex_studio_pending_citation';
 
 export function createStudioDocument(partial: Partial<StudioDocument> = {}): StudioDocument {
@@ -13,7 +13,7 @@ export function createStudioDocument(partial: Partial<StudioDocument> = {}): Stu
 
 export function isUntouchedStudioDocument(document: StudioDocument): boolean {
   const isTitleEmpty = !document.title || document.title === EMPTY_TITLE || document.title === 'Documento Jurídico sin Título';
-  const isHtmlEmpty = !document.editorHtml || document.editorHtml === EMPTY_HTML || document.editorHtml === '<p></p>' || document.editorHtml.includes('Comienza a redactar tu contrato');
+  const isHtmlEmpty = !document.editorHtml || document.editorHtml === EMPTY_HTML || document.editorHtml === '<h2>Título</h2>' || document.editorHtml === '<p></p>' || document.editorHtml.includes('Comienza a redactar tu contrato');
   return document.sourceKind === 'blank' && isTitleEmpty && isHtmlEmpty && document.citations.length === 0;
 }
 

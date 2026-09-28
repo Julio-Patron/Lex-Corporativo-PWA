@@ -67,27 +67,21 @@ describe('Introduction Component', () => {
     expect(handleOpenStation).toHaveBeenCalledWith('desktop');
   });
 
-  it('muestra las especificaciones técnicas en las tarjetas y no incluye la frase redundante previa', () => {
+  it('muestra las tarjetas compactas sin descripciones excesivas y conserva las métricas clave', () => {
     const handleOpenStation = vi.fn();
     render(<Introduction onOpenStation={handleOpenStation} />);
 
-    // Verifica que la frase redundante previa fue removida
+    // Verifica que la frase redundante previa y las descripciones largas fueron removidas
     expect(
       screen.queryByText(/Redacta instrumentos corporativos, consulta legislación federal/i),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Sin almacenamiento en la nube, sin rastreo ni telemetría/i),
+    ).not.toBeInTheDocument();
 
-    // Verifica especificaciones de Ingeniería Jurídica
-    expect(screen.getByText(/25 documentos:/i)).toBeInTheDocument();
-    expect(screen.queryByText(/25 plantillas:/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Sin almacenamiento en la nube, sin rastreo ni telemetría/i)).toBeInTheDocument();
-
-    // Verifica especificaciones del Fundamentador Jurídico
-    expect(screen.getByText(/5 materias:/i)).toBeInTheDocument();
-    expect(screen.getByText(/Laboral, Mercantil, Fiscal, Aduanal y Comercio Exterior/i)).toBeInTheDocument();
-    expect(screen.getByText(/SQLite WASM determinista en navegador/i)).toBeInTheDocument();
-
-    // Verifica especificaciones del Radar de Licitaciones
-    expect(screen.getByText(/CompraNet federal \+ compras estatales \(Yucatán\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/Convocatorias, bases, juntas de aclaraciones y plazos/i)).toBeInTheDocument();
+    // Verifica métricas en las insignias de las tarjetas
+    expect(screen.getByText('25 documentos')).toBeInTheDocument();
+    expect(screen.getByText(/leyes federales/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/licitaciones/i).length).toBeGreaterThan(0);
   });
 });
