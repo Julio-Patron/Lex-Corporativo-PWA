@@ -11,6 +11,7 @@ import {
   FilePenLine,
   FileText,
   FolderOpen,
+  Home,
   Italic,
   List,
   LoaderCircle,
@@ -26,7 +27,6 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import logoMark from '../assets/logo-mark.png';
 import { loadTemplateRegistry } from '../lib/template-registry';
 import { createStudioDocument as createDocument, getStudioSession, isUntouchedStudioDocument, type StudioSession } from '../lib/studio-session';
 import { documentExportText } from '../lib/document-export-content';
@@ -67,9 +67,10 @@ export interface DraftingStudioProps {
   onNavigateToDesktop?: () => void;
   registerBeforeLeave?: (guard: (() => Promise<boolean>) | null) => void;
   session?: StudioSession;
+  onGoHome?: () => void;
 }
 
-export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, session = getStudioSession() }: DraftingStudioProps = {}) {
+export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoHome, session = getStudioSession() }: DraftingStudioProps = {}) {
   const { notify } = useUiStore();
   const fileInput = useRef<HTMLInputElement>(null);
   const exportDetailsRef = useRef<HTMLDetailsElement>(null);
@@ -430,9 +431,21 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
         <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-2 px-3 py-2 sm:gap-3 sm:px-6 sm:py-2 lg:flex-row lg:items-center lg:justify-between">
           {/* Title and Module Brand */}
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-900 text-legal-gold shadow-card shrink-0">
-              <FilePenLine size={18} className="sm:w-5 sm:h-5" />
-            </span>
+            {onGoHome ? (
+              <button
+                type="button"
+                onClick={onGoHome}
+                className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-900 text-legal-gold hover:bg-slate-800 hover:text-white shadow-card shrink-0 active:scale-95 transition cursor-pointer"
+                title="Volver a Inicio"
+                aria-label="Volver a Inicio"
+              >
+                <Home size={18} className="sm:w-5 sm:h-5" />
+              </button>
+            ) : (
+              <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-900 text-legal-gold shadow-card shrink-0">
+                <FilePenLine size={18} className="sm:w-5 sm:h-5" />
+              </span>
+            )}
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-serif text-base font-bold tracking-tight text-slate-950 sm:text-lg">
@@ -848,36 +861,12 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
 
         {/* Paper Sheet */}
         <article className="legal-letterhead mx-auto flex w-full flex-col justify-between rounded-xl sm:rounded-2xl bg-white px-4 py-4 sm:px-12 sm:py-10 shadow-card sm:shadow-card transition-all border border-slate-200/90">
-          {/* Institutional Letterhead Header */}
-          <header className="border-t-2 border-legal-gold border-b border-slate-200 pb-3 mb-4 sm:mb-6">
-            <div className="flex items-center justify-between gap-2 sm:gap-4">
-              <div className="hidden sm:flex items-center gap-2 sm:gap-3">
-                <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-900 p-1 sm:p-1.5 shadow-card">
-                  <img src={logoMark} alt="Lex Corporativo" className="h-full w-full object-contain" />
-                </div>
-                <div>
-                  <span className="font-serif text-xs sm:text-sm font-bold tracking-[0.16em] sm:tracking-[0.2em] text-slate-950 block">
-                    LEX CORPORATIVO
-                  </span>
-                  <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
-                    Estudio de Ingeniería y Redacción Jurídica
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap text-left sm:text-right text-[10px] font-medium text-slate-400 w-full sm:w-auto justify-between sm:justify-end">
-                <span className="font-mono text-slate-700 font-bold tracking-tight">
-                  FOLIO · {currentDocument.id.slice(0, 8).toUpperCase()}
-                </span>
-                <span className="text-slate-300">·</span>
-                <span className="uppercase text-slate-500">
-                  {new Date(currentDocument.updatedAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })}
-                </span>
-                <span className="inline-block rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-[9px] font-medium text-slate-600 uppercase tracking-wide">
-                  Borrador
-                </span>
-              </div>
-            </div>
-          </header>
+          {/* Document Date Header - Solo la fecha */}
+          <div className="flex justify-end items-center pb-2.5 mb-3 border-b border-slate-100 text-[11px] font-medium text-slate-400 uppercase tracking-wider">
+            <span>
+              {new Date(currentDocument.updatedAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </span>
+          </div>
 
           {/* Active Template Banner (Harmonized Institutional Style) */}
           {selectedTemplate && (
@@ -923,7 +912,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                 type="text"
                 aria-label="Título del documento"
                 disabled={sessionState.transitioning || sessionState.locked}
-                value={currentDocument.title}
+                value={currentDocument.title === 'Documento Jurídico sin Título' ? '' : currentDocument.title}
                 onChange={(event) =>
                   setCurrentDocument((doc) => ({ ...doc, title: event.target.value, updatedAt: new Date().toISOString() }))
                 }

@@ -142,7 +142,11 @@ export function App() {
                 </div>
               }
             >
-              <DraftingStudio registerBeforeLeave={registerBeforeLeave} onNavigateToDesktop={() => handleTabChange('desktop')} />
+              <DraftingStudio
+                registerBeforeLeave={registerBeforeLeave}
+                onNavigateToDesktop={() => handleTabChange('desktop')}
+                onGoHome={handleGoHome}
+              />
             </Suspense>
           ) : (
             <Suspense
