@@ -28,7 +28,7 @@ describe('DraftingStudio Component', () => {
       render(<DraftingStudio />);
     });
 
-    // Catálogo modal se abre de inicio para reducir clics
+    // Catálogo modal se abre de inicio para reducir clics en desktop
     const dialog = await screen.findByRole('dialog', { name: 'Catálogo de instrumentos y plantillas' });
     expect(dialog).toBeInTheDocument();
     expect(within(dialog).getByRole('heading', { name: 'Biblioteca de Instrumentos' })).toBeInTheDocument();
@@ -196,5 +196,14 @@ describe('DraftingStudio Component', () => {
     expect(screen.getByText('Auditoría legal')).toBeInTheDocument();
     expect(screen.getByText('Fundamentación')).toBeInTheDocument();
   });
-});
 
+  it('renderiza la barra de herramientas móvil con métricas de palabras y lectura', async () => {
+    await act(async () => {
+      render(<DraftingStudio />);
+    });
+
+    expect(screen.getByLabelText('Barra de herramientas móvil')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Compartir documento').length).toBeGreaterThan(0);
+    expect(screen.getByText(/palabras · ~/i)).toBeInTheDocument();
+  });
+});

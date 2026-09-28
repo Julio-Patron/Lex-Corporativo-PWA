@@ -42,7 +42,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-lg text-center space-y-6">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-premium text-center space-y-6">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 text-red-500 mx-auto">
               <AlertTriangle size={32} />
             </div>
@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </p>
               {this.state.error && (
                 <details className="text-left mt-4 p-3 rounded-lg bg-slate-50 text-[11px] font-mono text-red-600">
-                  <summary className="cursor-pointer font-semibold text-slate-700">Detalles técnicos</summary>
+                  <summary className="cursor-pointer font-medium text-slate-700">Detalles técnicos</summary>
                   <pre className="mt-2 whitespace-pre-wrap break-words">{this.state.error.message}</pre>
                   <pre className="mt-2 whitespace-pre-wrap break-words text-[10px] text-slate-500">{this.state.error.stack}</pre>
                 </details>
@@ -63,7 +63,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <button
                 type="button"
                 onClick={this.handleRetry}
-                className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-legal-gold py-2.5 text-sm font-bold text-slate-950 shadow-xs transition hover:bg-legal-goldhover"
+                className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-legal-gold py-2 text-sm font-bold text-slate-950 shadow-card transition hover:bg-legal-goldhover"
               >
                 <RefreshCw size={16} />
                 <span>Reintentar</span>
@@ -71,7 +71,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <button
                 type="button"
                 onClick={this.handleGoHome}
-                className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
+                className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
               >
                 <Home size={16} />
                 <span>Volver al buscador</span>

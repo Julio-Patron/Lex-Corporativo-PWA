@@ -32,7 +32,7 @@ export function SearchInfoSheet({ open, onClose }: SearchInfoSheetProps) {
         aria-modal="true"
         role="dialog"
         aria-label="Información"
-        className="flex max-h-[88vh] w-full max-w-xl flex-col overflow-hidden rounded-t-3xl border border-slate-200 bg-white shadow-2xl sm:rounded-3xl"
+        className="flex max-h-[88vh] w-full max-w-xl flex-col overflow-hidden rounded-t-3xl border border-slate-200 bg-white shadow-dialog sm:rounded-3xl"
         onClick={(event) => event.stopPropagation()}
       >
         <header className="flex items-center justify-between border-b border-slate-200 p-4">
@@ -41,7 +41,7 @@ export function SearchInfoSheet({ open, onClose }: SearchInfoSheetProps) {
               <Info size={20} />
             </span>
             <div>
-              <h2 className="text-sm font-extrabold text-slate-950">Acerca de Lex Corporativo PWA</h2>
+              <h2 className="text-sm font-bold text-slate-950">Acerca de Lex Corporativo PWA</h2>
               <p className="text-[11px] text-slate-500">Servicios limpios de consulta jurídica y licitaciones públicas</p>
             </div>
           </div>
@@ -58,7 +58,7 @@ export function SearchInfoSheet({ open, onClose }: SearchInfoSheetProps) {
         <div className="space-y-4 overflow-y-auto p-4">
           {/* Service 1: Open Tenders CompraNet — first because protagonist */}
           <div className="rounded-2xl bg-slate-50 p-4 border border-slate-200/80">
-            <div className="flex items-center gap-2 text-sm font-extrabold text-slate-950">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-950">
               <Landmark size={18} className="text-blue-700" /> Licitaciones CompraNet
             </div>
             <p className="mt-2 text-xs leading-5 text-slate-600">
@@ -68,7 +68,7 @@ export function SearchInfoSheet({ open, onClose }: SearchInfoSheetProps) {
 
           {/* Service 2: Legal Legislation */}
           <div className="rounded-2xl bg-slate-50 p-4 border border-slate-200/80">
-            <div className="flex items-center gap-2 text-sm font-extrabold text-slate-950">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-950">
               <BookOpenCheck size={18} className="text-legal-golddark" /> Buscador Normativo Federal
             </div>
             <p className="mt-2 text-xs leading-5 text-slate-600">
@@ -80,7 +80,7 @@ export function SearchInfoSheet({ open, onClose }: SearchInfoSheetProps) {
 
           {/* Service 3: Estudio Jurídico */}
           <div className="rounded-2xl bg-slate-50 p-4 border border-slate-200/80">
-            <div className="flex items-center gap-2 text-sm font-extrabold text-slate-950">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-950">
               <FilePenLine size={18} className="text-amber-700" /> Estudio Jurídico Local
             </div>
             <p className="mt-2 text-xs leading-5 text-slate-600">
@@ -91,10 +91,10 @@ export function SearchInfoSheet({ open, onClose }: SearchInfoSheetProps) {
           {/* Service 3: Desktop Station Showcase */}
           <div className="rounded-2xl bg-slate-950 p-4 border border-legal-gold/40 text-white">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-extrabold text-legal-gold">
+              <div className="flex items-center gap-2 text-sm font-bold text-legal-gold">
                 <HardDrive size={16} /> Estación Desktop para Windows
               </div>
-              <span className="rounded-md bg-legal-gold/20 px-2 py-0.5 text-[10px] font-extrabold text-legal-gold">
+              <span className="rounded-md bg-legal-gold/20 px-2 py-0.5 text-[10px] font-bold text-legal-gold">
                 v{DESKTOP_SPECS.version}
               </span>
             </div>
@@ -105,7 +105,7 @@ export function SearchInfoSheet({ open, onClose }: SearchInfoSheetProps) {
               <span className="text-[11px] text-slate-400">Instalador firmado ({DESKTOP_SPECS.fileSizeFormatted})</span>
               <a
                 href={DESKTOP_SPECS.downloadUrl}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-legal-gold hover:bg-legal-goldhover text-slate-950 px-3 py-1.5 text-xs font-bold transition cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-lg bg-legal-gold hover:bg-legal-goldhover text-slate-950 px-3 py-2 text-xs font-bold transition cursor-pointer"
               >
                 <span>Descargar .EXE</span>
               </a>
@@ -114,7 +114,7 @@ export function SearchInfoSheet({ open, onClose }: SearchInfoSheetProps) {
 
           {/* Privacy & Processing */}
           <div className="rounded-2xl border border-slate-200 p-4">
-            <div className="flex items-center gap-2 text-sm font-extrabold text-slate-950">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-950">
               {isOnline ? (
                 <ShieldCheck size={18} className="text-emerald-600" />
               ) : (

@@ -42,26 +42,46 @@
   --radius-xl: 16px;
   --radius-2xl: 20px;
   
-  /* Branches */
-  --color-mercantil: #1e3a5f;
-  --color-mercantil-light: #2d5a8e;
-  --color-mercantil-dark: #0f2440;
-  --color-mercantil-accent: #c5a059;
-  --color-mercantil-bg: #f0f4f8;
-  --color-mercantil-50: #eff6ff;
-  --color-mercantil-100: #dbeafe;
-  
-  --color-fiscal: #1a3c34;
-  --color-fiscal-light: #2d6b5a;
-  --color-fiscal-dark: #0f2b23;
-  --color-fiscal-accent: #c5a059;
-  --color-fiscal-bg: #f0fdf4;
-  --color-fiscal-50: #f0fdf4;
-  --color-fiscal-100: #dcfce7;
-  
-  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  /* 3-Level Shadow Engine (sm = card, md = premium, lg = dialog) */
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
   --shadow-dialog: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+/*
+ * ═══════════════════════════════════════════════════
+ * DESIGN SYSTEM TOKENS — Pendiente.md Framework
+ * ═══════════════════════════════════════════════════
+ */
+:root {
+  /* 1. Spacing Engine (Base-4 / Base-8 Inmutable) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* 2. Color Logic Engine: Paleta de Grises (9 tonos neutros, nunca #000000) */
+  --color-gray-100: #f8fafc;
+  --color-gray-200: #f1f5f9;
+  --color-gray-300: #e2e8f0;
+  --color-gray-400: #cbd5e1;
+  --color-gray-500: #94a3b8;
+  --color-gray-600: #64748b;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+
+  /* 3. Typography Engine: Line Heights */
+  --lh-body: 1.5;
+  --lh-heading: 1.2;
 }
 
 *, *::before, *::after {
@@ -81,6 +101,7 @@ body {
   -webkit-tap-highlight-color: transparent;
   background-color: #f8fafc;
   font-family: 'Manrope Variable', Manrope, system-ui, sans-serif;
+  line-height: 1.5;
 }
 
 * {
@@ -200,15 +221,15 @@ body {
 .studio-action,
 .studio-primary {
   display: inline-flex;
-  min-height: 44px;
+  min-height: 38px;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   border-radius: 0.75rem;
-  padding: 0 0.75rem;
+  padding: 0 0.875rem;
   font-size: 0.75rem;
-  font-weight: 800;
-  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 100ms ease;
+  font-weight: 700;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 100ms ease, box-shadow 150ms ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -216,64 +237,77 @@ body {
 .studio-action:active,
 .studio-primary:active,
 .studio-icon-button:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
 .studio-action {
-  border: 1px solid #cbd5e1;
-  background: #fff;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
   color: #334155;
-  box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.03);
 }
 
-.studio-action:hover { background: #f8fafc; }
+.studio-action:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
 
 .studio-primary {
   border: 1px solid #c5a059;
   background: #c5a059;
   color: #0f172a;
-  box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+  box-shadow: 0 2px 4px rgb(197 160 89 / 0.18);
 }
 
-.studio-primary:hover { background: #b38d47; }
+.studio-primary:hover {
+  background: #b38d47;
+  border-color: #b38d47;
+}
 
 .studio-menu-item {
   display: flex;
-  min-height: 40px;
+  min-height: 38px;
   width: 100%;
   align-items: center;
-  border-radius: 0.625rem;
+  border-radius: 0.5rem;
   padding: 0 0.75rem;
   text-align: left;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 500;
   color: #334155;
-  transition: background-color 120ms ease;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
-.studio-menu-item:hover { background: #f1f5f9; color: #0f172a; }
+.studio-menu-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
 
 .studio-icon-button {
   display: inline-flex;
-  min-height: 40px;
-  min-width: 40px;
+  min-height: 36px;
+  min-width: 36px;
   align-items: center;
   justify-content: center;
-  border-radius: 0.75rem;
+  border-radius: 0.625rem;
   color: #64748b;
-  transition: background-color 160ms ease, color 160ms ease, transform 100ms ease;
+  transition: background-color 150ms ease, color 150ms ease, transform 100ms ease;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-.studio-icon-button:hover { background: #f1f5f9; color: #0f172a; }
+.studio-icon-button:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
 
 .studio-input {
-  min-height: 44px;
+  min-height: 40px;
   width: 100%;
   border: 1px solid #cbd5e1;
   border-radius: 0.75rem;
-  background: #fff;
+  background: #ffffff;
   padding-left: 0.75rem;
   padding-right: 0.75rem;
   color: #0f172a;
@@ -297,24 +331,65 @@ body {
 }
 
 .studio-editor {
-  color: #334155;
+  color: #1e293b;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   line-height: 1.85;
+  touch-action: manipulation;
 }
 
-.studio-editor p { margin: 0.65rem 0; text-align: justify; }
-.studio-editor h1, .studio-editor h2, .studio-editor h3 { color: #0f172a; font-family: var(--font-serif); }
-.studio-editor h1 { margin: 1.5rem 0 0.8rem; text-align: center; font-size: 1.35rem; font-weight: 700; }
-.studio-editor h2 { margin: 1.35rem 0 0.65rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.35rem; font-size: 1.1rem; font-weight: 700; }
-.studio-editor ul, .studio-editor ol { margin: 0.65rem 0; padding-left: 1.5rem; }
-.studio-editor blockquote { margin: 1rem 0; border-left: 3px solid #c5a059; background: #fffbeb; padding: 0.65rem 0.9rem; color: #475569; }
-.studio-editor a { color: #1d4ed8; text-decoration: underline; }
+.studio-editor p {
+  margin: 0.75rem 0;
+  text-align: justify;
+}
+
+.studio-editor h1, .studio-editor h2, .studio-editor h3 {
+  color: #0f172a;
+  font-family: var(--font-serif);
+}
+
+.studio-editor h1 {
+  margin: 1.75rem 0 0.85rem;
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.studio-editor h2 {
+  margin: 1.5rem 0 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.35rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.studio-editor ul, .studio-editor ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.studio-editor blockquote {
+  margin: 1rem 0;
+  border-left: 3px solid #c5a059;
+  border-radius: 0 0.5rem 0.5rem 0;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  color: #334155;
+  font-style: italic;
+}
+
+.studio-editor a {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
 .studio-editor sup {
   font-family: var(--font-sans);
   font-size: 0.72em;
-  font-weight: 800;
-  color: #92400e;
+  font-weight: 700;
+  color: #8e6d2b;
   background-color: #fef3c7;
   padding: 1px 4px;
   border-radius: 4px;
@@ -324,7 +399,10 @@ body {
 }
 
 @media (max-width: 640px) {
-  .studio-editor { font-size: 0.875rem; line-height: 1.75; }
+  .studio-editor {
+    font-size: 1rem; /* 16px prevents iOS Safari auto-zoom on mobile focus */
+    line-height: 1.75;
+  }
 }
 
 @keyframes slideLeft {

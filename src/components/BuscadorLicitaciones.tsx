@@ -136,13 +136,13 @@ const LicitacionCard = memo(function LicitacionCard({
   );
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs transition hover:border-slate-300 hover:shadow-md">
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card transition hover:border-slate-300 hover:shadow-premium">
       <div className="p-4 sm:p-5">
         {/* Header Row: Badges + Action Buttons */}
         <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
           {/* Left: Tags and Deadline */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-extrabold text-slate-800">
+            <span className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-bold text-slate-800">
               {licitacion.numeroProcedimiento}
             </span>
             <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700">
@@ -163,7 +163,7 @@ const LicitacionCard = memo(function LicitacionCard({
 
           {/* Deadline Countdown Badge (Right Aligned) */}
           <div
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold ${
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-[11px] font-bold ${
               daysInfo.badgeStyle === 'urgent'
                 ? 'bg-red-50 text-red-700 border border-red-200'
                 : daysInfo.badgeStyle === 'warning'
@@ -183,16 +183,16 @@ const LicitacionCard = memo(function LicitacionCard({
         {/* Middle Row: Title & Convocante Subtitle */}
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
-            <h2 className="text-base font-extrabold leading-snug text-slate-950 sm:text-lg">
+            <h2 className="text-base font-bold leading-snug text-slate-950 sm:text-lg">
               {licitacion.titulo}
             </h2>
-            <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-slate-600">
+            <p className="mt-1 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-600">
               <Building2 size={13} className="text-slate-400 shrink-0" />
               <span>{licitacion.convocante}</span>
               <span className="text-slate-300">·</span>
               <span className="text-slate-500">{licitacion.unidadCompradora}</span>
             </p>
-            <p className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-blue-700">
+            <p className="mt-1 flex flex-wrap items-center gap-2 text-[11px] font-medium text-blue-700">
               <ShieldCheck size={12} className="shrink-0" />
               Fuente: {source.nombre} · verificada {formattedVerificada}
             </p>
@@ -231,7 +231,7 @@ const LicitacionCard = memo(function LicitacionCard({
             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
               <DollarSign size={11} className="text-slate-400" /> Presupuesto
             </span>
-            <p className="mt-0.5 font-mono text-xs font-extrabold text-slate-900 truncate">
+            <p className="mt-1 font-mono text-xs font-bold text-slate-900 truncate">
               {formattedCurrency}
             </p>
           </div>
@@ -240,7 +240,7 @@ const LicitacionCard = memo(function LicitacionCard({
             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
               <Scale size={11} className="text-slate-400" /> Materia
             </span>
-            <p className="mt-0.5 text-xs font-extrabold text-slate-900 truncate">
+            <p className="mt-1 text-xs font-bold text-slate-900 truncate">
               {MATERIA_LABELS[licitacion.materia]}
             </p>
           </div>
@@ -249,7 +249,7 @@ const LicitacionCard = memo(function LicitacionCard({
             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
               <Calendar size={11} className="text-slate-400" /> Límite
             </span>
-            <p className="mt-0.5 text-xs font-extrabold text-slate-900">
+            <p className="mt-1 text-xs font-bold text-slate-900">
               {formattedLimite}
             </p>
           </div>
@@ -258,7 +258,7 @@ const LicitacionCard = memo(function LicitacionCard({
             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
               <Check size={11} className="text-slate-400" /> Estatus
             </span>
-            <p className="mt-0.5 text-xs font-extrabold text-slate-900 truncate">
+            <p className="mt-1 text-xs font-bold text-slate-900 truncate">
               {ESTATUS_LABELS[licitacion.estatus]}
             </p>
           </div>
@@ -266,7 +266,7 @@ const LicitacionCard = memo(function LicitacionCard({
 
         {/* Description Paragraph */}
         <p
-          className={`mt-2.5 text-xs leading-5 text-slate-700 sm:text-sm ${
+          className={`mt-2 text-xs leading-5 text-slate-700 sm:text-sm ${
             isExpanded ? '' : 'line-clamp-2'
           }`}
         >
@@ -277,23 +277,23 @@ const LicitacionCard = memo(function LicitacionCard({
         {isExpanded && (
           <div
             id={`licitacion-detalle-${licitacion.id}`}
-            className="mt-3.5 space-y-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 sm:p-4"
+            className="mt-4 space-y-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-4 sm:p-4"
           >
             {/* Timeline */}
             <div>
-              <h3 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-900">
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-900">
                 Cronograma del Procedimiento
               </h3>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 md:grid-cols-4">
                 <div className="rounded-lg bg-white p-2 border border-slate-200/80">
-                  <span className="text-[10px] font-semibold text-slate-500">Publicación</span>
+                  <span className="text-[10px] font-medium text-slate-500">Publicación</span>
                   <p className="text-xs font-bold text-slate-900">
                     {formattedPublicacion}
                   </p>
                 </div>
                 {licitacion.fechaVisitaSitio && (
                   <div className="rounded-lg bg-white p-2 border border-slate-200/80">
-                    <span className="text-[10px] font-semibold text-slate-500">Visita al Sitio</span>
+                    <span className="text-[10px] font-medium text-slate-500">Visita al Sitio</span>
                     <p className="text-xs font-bold text-slate-900">
                       {formatDate(licitacion.fechaVisitaSitio)}
                     </p>
@@ -301,14 +301,14 @@ const LicitacionCard = memo(function LicitacionCard({
                 )}
                 {licitacion.fechaJuntaAclaraciones && (
                   <div className="rounded-lg bg-white p-2 border border-slate-200/80">
-                    <span className="text-[10px] font-semibold text-slate-500">Junta de Aclaraciones</span>
+                    <span className="text-[10px] font-medium text-slate-500">Junta de Aclaraciones</span>
                     <p className="text-xs font-bold text-slate-900">
                       {formatDate(licitacion.fechaJuntaAclaraciones)}
                     </p>
                   </div>
                 )}
                 <div className="rounded-lg bg-white p-2 border border-slate-200/80">
-                  <span className="text-[10px] font-semibold text-slate-500">Límite de Propuestas</span>
+                  <span className="text-[10px] font-medium text-slate-500">Límite de Propuestas</span>
                   <p className="text-xs font-bold text-slate-900">
                     {licitacion.fechaLimitePropuestas
                       ? formatDateTime(licitacion.fechaLimitePropuestas)
@@ -317,7 +317,7 @@ const LicitacionCard = memo(function LicitacionCard({
                 </div>
                 {licitacion.fechaFallo && (
                   <div className="rounded-lg bg-white p-2 border border-slate-200/80">
-                    <span className="text-[10px] font-semibold text-slate-500">Fallo Estimado</span>
+                    <span className="text-[10px] font-medium text-slate-500">Fallo Estimado</span>
                     <p className="text-xs font-bold text-slate-900">
                       {formatDate(licitacion.fechaFallo)}
                     </p>
@@ -327,9 +327,9 @@ const LicitacionCard = memo(function LicitacionCard({
             </div>
 
             {/* Legal Basis & Requirements */}
-            <div className="grid gap-2.5 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               <div className="rounded-xl bg-white p-3 border border-slate-200/80">
-                <span className="flex items-center gap-1.5 text-xs font-extrabold text-slate-900">
+                <span className="flex items-center gap-2 text-xs font-bold text-slate-900">
                   <Scale size={13} className="text-legal-golddark" /> Fundamento Jurídico
                 </span>
                 <p className="mt-1 text-xs text-slate-700 leading-5">
@@ -338,13 +338,13 @@ const LicitacionCard = memo(function LicitacionCard({
               </div>
 
               <div className="rounded-xl bg-white p-3 border border-slate-200/80">
-                <span className="flex items-center gap-1.5 text-xs font-extrabold text-slate-900">
+                <span className="flex items-center gap-2 text-xs font-bold text-slate-900">
                   <FileCheck2 size={13} className="text-emerald-700" /> Requisitos Clave
                 </span>
                 {licitacion.requisitosClave.length > 0 ? (
                   <ul className="mt-1 space-y-1 text-xs text-slate-600">
                     {licitacion.requisitosClave.map((req, i) => (
-                      <li key={i} className="flex items-start gap-1.5">
+                      <li key={i} className="flex items-start gap-2">
                         <span className="text-emerald-600 font-bold">•</span>
                         <span>{req}</span>
                       </li>
@@ -364,11 +364,11 @@ const LicitacionCard = memo(function LicitacionCard({
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Documentos y anexos en {source.nombre}:
                 </span>
-                <div className="mt-1 flex flex-wrap gap-1.5">
+                <div className="mt-1 flex flex-wrap gap-2">
                   {licitacion.anexosDisponibles.map((anexo, i) => (
                     <span
                       key={i}
-                      className="rounded-md bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-700 border border-slate-200"
+                      className="rounded-md bg-white px-2 py-0.5 text-[11px] font-medium text-slate-700 border border-slate-200"
                     >
                       <span className="inline-flex items-center gap-1">
                         <FileText size={12} className="text-slate-400" />
@@ -383,11 +383,11 @@ const LicitacionCard = memo(function LicitacionCard({
         )}
 
         {/* Bottom Actions Bar */}
-        <div className="mt-3.5 flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
           <button
             type="button"
             onClick={() => onToggleExpanded(licitacion.id)}
-            className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-legal-gold hover:bg-legal-goldhover px-4 text-xs font-bold text-slate-950 shadow-xs transition active:scale-95 cursor-pointer"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 hover:border-slate-400 px-4 text-xs font-bold text-slate-800 shadow-card transition active:scale-95 cursor-pointer"
             aria-expanded={isExpanded}
             aria-controls={`licitacion-detalle-${licitacion.id}`}
           >
@@ -636,7 +636,7 @@ export function BuscadorLicitaciones() {
 
             <div
               role="status"
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold ${
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-bold ${
                 isOnline
                   ? 'border-emerald-700/60 bg-emerald-950/40 text-emerald-300'
                   : 'border-amber-700/60 bg-amber-950/40 text-amber-200'
@@ -650,7 +650,7 @@ export function BuscadorLicitaciones() {
           {/* Integrated Search Box */}
           <form
             onSubmit={handleSearchSubmit}
-            className="mt-3.5 rounded-2xl border border-slate-700 bg-slate-900/90 p-3 shadow-xl shadow-black/30"
+            className="mt-4 rounded-2xl border border-slate-700 bg-slate-900/90 p-3 shadow-premium"
           >
             <label htmlFor="licitacion-query" className="sr-only">
               ¿Qué licitación, insumo o servicio buscas?
@@ -671,23 +671,23 @@ export function BuscadorLicitaciones() {
                   aria-label="Buscar licitación por título, descripción, número de procedimiento o convocante"
                   placeholder="Buscar por objeto, insumo, número de procedimiento o convocante..."
                   autoComplete="off"
-                  className="min-h-11 w-full rounded-xl border border-slate-600 bg-slate-950 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-legal-gold focus:outline-none"
+                  className="min-h-11 w-full rounded-xl border border-slate-600 bg-slate-950 py-2 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-legal-gold focus:outline-none"
                 />
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="submit"
                   disabled={isSearching}
-                  className="inline-flex min-h-11 flex-1 sm:flex-initial items-center justify-center gap-2 rounded-xl bg-legal-gold px-5 text-xs font-extrabold text-slate-950 transition hover:bg-legal-goldhover disabled:cursor-wait disabled:opacity-60"
+                  className="inline-flex min-h-11 flex-1 sm:flex-initial items-center justify-center gap-2 rounded-xl bg-legal-gold px-5 text-xs font-bold text-slate-950 transition hover:bg-legal-goldhover disabled:cursor-wait disabled:opacity-60"
                 >
                   {isSearching ? <LoaderCircle size={16} className="animate-spin" /> : <FileSearch size={16} />} Buscar
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-3.5 text-xs font-bold transition ${
+                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-xs font-bold transition ${
                     showFilters || activeFiltersCount > 0
-                      ? 'border-legal-gold bg-legal-gold/20 text-legal-gold font-extrabold'
+                      ? 'border-legal-gold bg-legal-gold/20 text-legal-gold font-bold'
                       : 'border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700'
                   }`}
                   aria-expanded={showFilters}
@@ -695,7 +695,7 @@ export function BuscadorLicitaciones() {
                   <Filter size={15} />
                   <span>Filtros</span>
                   {activeFiltersCount > 0 && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-legal-gold text-[10px] font-extrabold text-slate-950">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-legal-gold text-[10px] font-bold text-slate-950">
                       {activeFiltersCount}
                     </span>
                   )}
@@ -704,8 +704,8 @@ export function BuscadorLicitaciones() {
             </div>
 
             {/* Quick 1-Touch Materia Pills */}
-            <div className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 shrink-0 mr-1">
+            <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1">
                 Materia:
               </span>
               {(Object.entries(MATERIA_LABELS) as Array<['todas' | LicitacionMateria, string]>).map(
@@ -716,9 +716,9 @@ export function BuscadorLicitaciones() {
                       key={key}
                       type="button"
                       onClick={() => handleFilterChange(key, caracter, convocante, entidad, estatus, sortBy)}
-                      className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer ${
+                      className={`shrink-0 rounded-lg px-3 py-1 text-xs font-medium transition cursor-pointer ${
                         isActive
-                          ? 'bg-legal-gold text-slate-950 font-extrabold shadow-2xs'
+                          ? 'bg-legal-gold text-slate-950 font-bold shadow-card'
                           : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white'
                       }`}
                     >
@@ -731,7 +731,7 @@ export function BuscadorLicitaciones() {
 
             {/* Collapsible Structured Filters Bar */}
             {showFilters && (
-              <div className="mt-3 grid gap-2.5 border-t border-slate-700/80 pt-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              <div className="mt-3 grid gap-2 border-t border-slate-700/80 pt-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                 {/* 1. Materia */}
                 <label className="text-xs font-bold text-slate-300">
                   Materia
@@ -747,7 +747,7 @@ export function BuscadorLicitaciones() {
                         sortBy,
                       )
                     }
-                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-2.5 text-xs text-white focus:border-legal-gold focus:outline-none"
+                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-3 text-xs text-white focus:border-legal-gold focus:outline-none"
                   >
                     {(Object.entries(MATERIA_LABELS) as Array<['todas' | LicitacionMateria, string]>).map(
                       ([key, label]) => (
@@ -767,7 +767,7 @@ export function BuscadorLicitaciones() {
                     onChange={(e) =>
                       handleFilterChange(materia, caracter, convocante, e.target.value, estatus, sortBy)
                     }
-                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-2.5 text-xs text-white focus:border-legal-gold focus:outline-none"
+                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-3 text-xs text-white focus:border-legal-gold focus:outline-none"
                   >
                     <option value="todas">Todas las 32 entidades</option>
                     {availableEntidades.map((ent) => (
@@ -786,7 +786,7 @@ export function BuscadorLicitaciones() {
                     onChange={(e) =>
                       handleFilterChange(materia, caracter, e.target.value, entidad, estatus, sortBy)
                     }
-                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-2.5 text-xs text-white focus:border-legal-gold focus:outline-none"
+                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-3 text-xs text-white focus:border-legal-gold focus:outline-none"
                   >
                     <option value="todas">Todas las dependencias</option>
                     {availableConvocantes.map((c) => (
@@ -812,7 +812,7 @@ export function BuscadorLicitaciones() {
                         sortBy,
                       )
                     }
-                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-2.5 text-xs text-white focus:border-legal-gold focus:outline-none"
+                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-3 text-xs text-white focus:border-legal-gold focus:outline-none"
                   >
                     {(Object.entries(CARACTER_LABELS) as Array<['todos' | LicitacionCaracter, string]>).map(
                       ([key, label]) => (
@@ -839,7 +839,7 @@ export function BuscadorLicitaciones() {
                         sortBy,
                       )
                     }
-                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-2.5 text-xs text-white focus:border-legal-gold focus:outline-none"
+                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-3 text-xs text-white focus:border-legal-gold focus:outline-none"
                   >
                     {(Object.entries(ESTATUS_LABELS) as Array<['todos' | LicitacionEstatus, string]>).map(
                       ([key, label]) => (
@@ -866,7 +866,7 @@ export function BuscadorLicitaciones() {
                         e.target.value as LicitacionSort,
                       )
                     }
-                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-2.5 text-xs text-white focus:border-legal-gold focus:outline-none"
+                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-3 text-xs text-white focus:border-legal-gold focus:outline-none"
                   >
                     <option value="cierre_proximo">Cierre más próximo</option>
                     <option value="reciente">Más reciente</option>
@@ -879,10 +879,10 @@ export function BuscadorLicitaciones() {
 
             {/* Active Filter Badges Bar */}
             {activeFiltersCount > 0 && (
-              <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-slate-800 pt-2">
+              <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2">
                 <span className="text-[11px] font-bold text-slate-400">Filtros activos:</span>
                 {materia !== 'todas' && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-legal-gold">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-legal-gold">
                     Materia: {MATERIA_LABELS[materia]}
                     <button
                       type="button"
@@ -896,7 +896,7 @@ export function BuscadorLicitaciones() {
                   </span>
                 )}
                 {entidad !== 'todas' && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-legal-gold">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-legal-gold">
                     Entidad: {entidad}
                     <button
                       type="button"
@@ -910,7 +910,7 @@ export function BuscadorLicitaciones() {
                   </span>
                 )}
                 {convocante !== 'todas' && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-legal-gold">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-legal-gold">
                     Convocante: {convocante}
                     <button
                       type="button"
@@ -924,7 +924,7 @@ export function BuscadorLicitaciones() {
                   </span>
                 )}
                 {caracter !== 'todos' && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-legal-gold">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-legal-gold">
                     Carácter: {CARACTER_LABELS[caracter]}
                     <button
                       type="button"
@@ -938,7 +938,7 @@ export function BuscadorLicitaciones() {
                   </span>
                 )}
                 {estatus !== 'todos' && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-legal-gold">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-legal-gold">
                     Etapa: {ESTATUS_LABELS[estatus]}
                     <button
                       type="button"
@@ -952,7 +952,7 @@ export function BuscadorLicitaciones() {
                   </span>
                 )}
                 {sortBy !== 'cierre_proximo' && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-legal-gold">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-legal-gold">
                     Orden: {SORT_LABELS[sortBy]}
                     <button
                       type="button"
@@ -985,7 +985,7 @@ export function BuscadorLicitaciones() {
         {!result && !isSearching && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
             <Landmark className="mx-auto text-slate-400" size={36} />
-            <h2 className="mt-3 text-sm font-extrabold text-slate-900">
+            <h2 className="mt-3 text-sm font-bold text-slate-900">
               Explora convocatorias y procedimientos de contratación
             </h2>
             <p className="mx-auto mt-1 max-w-md text-xs leading-5 text-slate-500">
@@ -996,11 +996,11 @@ export function BuscadorLicitaciones() {
 
         {/* Results Count & Actions Header */}
         {result && (
-          <div className="mb-4 flex flex-col gap-2.5 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-4 flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-card sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-extrabold text-slate-950">
+              <p className="text-sm font-bold text-slate-950">
                 {result.total} {result.total === 1 ? 'publicación encontrada' : 'publicaciones encontradas'}
-                {query.trim() && <span className="font-semibold text-slate-700"> para "{result.query}"</span>}
+                {query.trim() && <span className="font-medium text-slate-700"> para "{result.query}"</span>}
               </p>
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
                 {result.executionTimeMs} ms
@@ -1012,7 +1012,7 @@ export function BuscadorLicitaciones() {
                 <button
                   type="button"
                   onClick={resetAll}
-                  className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-slate-200 px-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                  className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-700 hover:bg-slate-50"
                 >
                   <RotateCcw size={12} /> Limpiar búsqueda
                 </button>
@@ -1021,7 +1021,7 @@ export function BuscadorLicitaciones() {
                 href={COMPRANET_PORTAL_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-slate-900 px-3 text-xs font-bold text-white hover:bg-slate-800"
+                className="inline-flex min-h-8 items-center gap-2 rounded-lg bg-slate-900 px-3 text-xs font-bold text-white hover:bg-slate-800"
               >
                 Portal federal <ExternalLink size={12} />
               </a>
@@ -1033,7 +1033,7 @@ export function BuscadorLicitaciones() {
         {result && result.licitaciones.length === 0 && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
             <FileSearch className="mx-auto text-slate-400" size={32} />
-            <h2 className="mt-2.5 text-sm font-extrabold text-slate-900">
+            <h2 className="mt-2 text-sm font-bold text-slate-900">
               No se encontraron licitaciones con estos criterios
             </h2>
             <p className="mx-auto mt-1 max-w-md text-xs leading-5 text-slate-500">
@@ -1043,7 +1043,7 @@ export function BuscadorLicitaciones() {
             <button
               type="button"
               onClick={resetFilters}
-              className="mt-3.5 inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white hover:bg-slate-800"
+              className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white hover:bg-slate-800"
             >
               <RotateCcw size={14} /> Restablecer filtros
             </button>
@@ -1052,7 +1052,7 @@ export function BuscadorLicitaciones() {
 
         {/* Tender Cards List */}
         {result && result.licitaciones.length > 0 && (
-          <div className="space-y-3.5" aria-live="polite">
+          <div className="space-y-4" aria-live="polite">
             {result.licitaciones.map((licitacion) => (
               <LicitacionCard
                 key={licitacion.id}
@@ -1066,12 +1066,12 @@ export function BuscadorLicitaciones() {
             ))}
 
             {/* Desktop Complementary Banner */}
-            <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 p-4 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 p-4 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-card">
               <div className="text-center sm:text-left">
-                <p className="text-xs font-bold text-legal-gold flex items-center justify-center sm:justify-start gap-1.5">
+                <p className="text-xs font-bold text-legal-gold flex items-center justify-center sm:justify-start gap-2">
                   <HardDrive size={15} /> ¿Necesitas auditar contratos de proveedores o redactar convenios de licitación?
                 </p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-[11px] text-slate-400 mt-1">
                   Lex Corporativo Desktop incluye auditoría contractual, expedientes locales y exportación Word/PDF 100% offline.
                 </p>
               </div>
@@ -1083,7 +1083,7 @@ export function BuscadorLicitaciones() {
                   window.history.pushState(null, '', url);
                   window.dispatchEvent(new PopStateEvent('popstate'));
                 }}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-legal-gold hover:bg-legal-goldhover text-slate-950 px-3.5 py-1.5 text-xs font-extrabold transition cursor-pointer shrink-0"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-600 bg-slate-800/80 hover:bg-slate-700 text-slate-200 px-4 py-2 text-xs font-bold transition cursor-pointer shrink-0"
               >
                 <span>Ficha Técnica Desktop</span>
               </button>

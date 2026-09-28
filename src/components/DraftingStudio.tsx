@@ -38,6 +38,7 @@ import { useUiStore } from '../store/useUiStore';
 import { TemplateCatalogModal } from './studio/TemplateCatalogModal';
 import { StudioWelcomeHub } from './studio/StudioWelcomeHub';
 import { EditorBubbleMenu } from './studio/EditorBubbleMenu';
+import { MobileEditorToolbar } from './studio/MobileEditorToolbar';
 import { FootnotesAppendix } from './studio/FootnotesAppendix';
 import { DesktopFeatureLockModal, type LockedFeatureType } from './studio/DesktopFeatureLockModal';
 import type {
@@ -47,10 +48,10 @@ import type {
 } from '../types';
 
 const ClauseAuditorDrawer = lazy(() =>
-  import('./studio/ClauseAuditorDrawer').then((m) => ({ default: m.ClauseAuditorDrawer }))
+  import('./studio/ClauseAuditorDrawer').then((m) => ({ default: m.ClauseAuditorDrawer })),
 );
 const AssistantFundamentadorDrawer = lazy(() =>
-  import('./studio/AssistantFundamentadorDrawer').then((m) => ({ default: m.AssistantFundamentadorDrawer }))
+  import('./studio/AssistantFundamentadorDrawer').then((m) => ({ default: m.AssistantFundamentadorDrawer })),
 );
 
 const escapeHtml = (value: string) =>
@@ -99,7 +100,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
     content: currentDocument.editorHtml,
     editorProps: {
       attributes: {
-        class: 'studio-editor min-h-[480px] outline-none leading-relaxed text-slate-800 text-sm sm:text-base',
+        class: 'studio-editor min-h-[480px] outline-none leading-relaxed text-slate-800 text-base',
         'aria-label': 'Contenido editable del documento',
       },
     },
@@ -156,7 +157,6 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
   }, [currentDocument.editorHtml, currentDocument.id, editor]);
 
   useEffect(() => {
-    // Changing interactivity is not a document edit, especially during recovery.
     editor?.setEditable(!sessionState.transitioning && !sessionState.locked, false);
   }, [editor, sessionState.transitioning, sessionState.locked]);
 
@@ -172,7 +172,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
         try {
           wakeLock = await (navigator as unknown as { wakeLock: { request: (type: string) => Promise<{ release?: () => Promise<void> }> } }).wakeLock.request('screen');
         } catch {
-          // Ignore silently on unsupported or battery-restricted environments
+          // Ignore silently
         }
       }
     };
@@ -305,6 +305,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
 
   async function exportDocx() {
     exportDetailsRef.current?.removeAttribute('open');
+    mobileExportDetailsRef.current?.removeAttribute('open');
     if (!editor) return;
     try {
       if (currentDocument.sourceKind === 'docx' && currentDocument.sourceBuffer && currentDocument.sourceFileName) {
@@ -325,6 +326,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
 
   async function exportPdf() {
     exportDetailsRef.current?.removeAttribute('open');
+    mobileExportDetailsRef.current?.removeAttribute('open');
     if (!editor) return;
     try {
       await exportDocumentPdf(currentDocument.title, documentExportText(editor.getText({ blockSeparator: '\n\n' }), currentDocument.citations));
@@ -334,6 +336,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
 
   async function exportTxt() {
     exportDetailsRef.current?.removeAttribute('open');
+    mobileExportDetailsRef.current?.removeAttribute('open');
     if (!editor) return;
     downloadTextCopy(documentExportText(editor.getText({ blockSeparator: '\n\n' }), currentDocument.citations), currentDocument.sourceFileName ?? currentDocument.title);
   }
@@ -361,7 +364,6 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
     }
   }
 
-
   function addCitation(article: LegalArticle) {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(10);
@@ -369,7 +371,6 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
     session.addCitation(article);
   }
 
-  // Opción C: Insert Footnote with Superscript [N] linked to Appendix
   function insertFootnote(article: LegalArticle) {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(10);
@@ -385,7 +386,6 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
     notify(`Nota al pie [${footnoteNumber}] insertada y vinculada al apéndice.`, 'success');
   }
 
-  // Insert Full Blockquote
   function insertBlockquote(article: LegalArticle) {
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(10);
@@ -415,19 +415,27 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
     return `${currentDocument.title}\n\n${strippedHtml}`;
   }, [editor, currentDocument.editorHtml, currentDocument.title]);
 
+  const { wordCount, readingMinutes } = useMemo(() => {
+    const rawText = editor && !editor.isDestroyed ? editor.getText() : currentDocument.editorHtml.replace(/<[^>]+>/g, ' ');
+    const trimmed = rawText.trim();
+    const words = trimmed ? trimmed.split(/\s+/).length : 0;
+    const reading = Math.max(1, Math.ceil(words / 200));
+    return { wordCount: words, readingMinutes: reading };
+  }, [editor, currentDocument.editorHtml]);
+
   return (
     <div className="flex min-h-[calc(100vh-64px)] flex-col bg-slate-100/70 text-slate-950">
       {/* Top Main Navigation Bar */}
-      <section className="sticky top-0 z-40 border-b border-slate-200/90 bg-white shadow-xs">
-        <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-2 px-3 py-2 sm:gap-3 sm:px-6 sm:py-2.5 lg:flex-row lg:items-center lg:justify-between">
+      <section className="sticky top-0 z-40 border-b border-slate-200/90 bg-white shadow-card">
+        <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-2 px-3 py-2 sm:gap-3 sm:px-6 sm:py-2 lg:flex-row lg:items-center lg:justify-between">
           {/* Title and Module Brand */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl border border-legal-gold/30 bg-legal-gold/10 text-legal-golddark shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-900 text-legal-gold shadow-card shrink-0">
               <FilePenLine size={18} className="sm:w-5 sm:h-5" />
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-serif text-base font-bold tracking-tight text-slate-950 sm:text-xl">
+                <h1 className="font-serif text-base font-bold tracking-tight text-slate-950 sm:text-lg">
                   Ingeniería Jurídica
                 </h1>
                 <span
@@ -435,16 +443,20 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                   aria-live="polite"
                   aria-label="Estado del borrador"
                   data-status={saveState}
-                  className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold ${
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium transition-colors ${
                     saveState === 'error'
-                      ? 'border-red-200 bg-red-50 text-red-700'
-                      : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                      ? 'border border-red-200 bg-red-50 text-red-700'
+                      : saveState === 'saving' || saveState === 'loading'
+                      ? 'border border-amber-200 bg-amber-50 text-amber-800'
+                      : 'border border-slate-200 bg-slate-50 text-slate-600'
                   }`}
                 >
                   {saveState === 'saving' || saveState === 'loading' ? (
-                    <LoaderCircle size={11} className="animate-spin" />
+                    <LoaderCircle size={11} className="animate-spin text-legal-golddark" />
+                  ) : saveState === 'error' ? (
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                   ) : (
-                    <CheckCircle2 size={11} />
+                    <CheckCircle2 size={11} className="text-emerald-600" />
                   )}
                   <span className="hidden sm:inline">
                     {{ loading: 'Recuperando…', empty: 'Sin cambios', pending: 'Cambios pendientes', saving: 'Guardando…', saved: 'Guardado en este dispositivo', error: 'Requiere atención' }[saveState]}
@@ -471,31 +483,30 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                   if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                   setShowCatalogModal(true);
                 }}
-                className="studio-action gap-1 font-extrabold text-slate-900 border-slate-300 hover:border-legal-gold cursor-pointer shrink-0"
+                className="studio-action gap-1 font-bold text-slate-800 hover:border-legal-gold cursor-pointer inline-flex"
                 title="Iniciar nuevo documento desde el catálogo de instrumentos"
               >
-                <Plus size={14} className="text-legal-gold" />
+                <Plus size={14} className="text-legal-golddark" />
                 <span>Nuevo</span>
               </button>
 
-              {/* Catalog Button */}
               <button
                 type="button"
                 onClick={() => {
                   if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                   setShowCatalogModal(true);
                 }}
-                className="studio-primary gap-1 sm:gap-1.5 shrink-0"
+                className="studio-primary gap-1 sm:gap-2"
                 title="Abrir catálogo de plantillas e instrumentos"
               >
                 <BookOpen size={14} />
-                <span className="truncate max-w-[200px]">
+                <span className="truncate max-w-[120px] sm:max-w-[180px]">
                   {selectedTemplate ? selectedTemplate.title : 'Instrumentos'}
                 </span>
-                <ChevronDown size={12} className="opacity-70" />
+                <ChevronDown size={12} className="opacity-75" />
               </button>
 
-              {/* Template Variables Trigger (if active) */}
+              {/* Template Variables Trigger (Contextual when template is active) */}
               {selectedTemplate && (
                 <button
                   type="button"
@@ -503,120 +514,111 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                     openVariables();
                   }}
-                  className="studio-action text-amber-800 border-amber-300 bg-amber-50/70 hover:bg-amber-100 shrink-0"
+                  className="studio-action text-slate-800 hover:border-legal-gold gap-1.5 shrink-0"
                   title="Configurar variables de la plantilla activa"
                 >
-                  <SlidersHorizontal size={14} />
+                  <SlidersHorizontal size={13} className="text-legal-golddark" />
                   <span>Variables</span>
-                  <span className="rounded-full bg-amber-200/80 px-1.5 py-0.2 text-[9px] font-black text-amber-900">
+                  <span className="rounded-full bg-slate-100 border border-slate-200 px-1.5 py-0.5 text-[9px] font-bold text-slate-700">
                     {selectedTemplate.fields.length}
                   </span>
                 </button>
               )}
 
-              {/* Opción D: Auditor de Fundamentación Trigger (Locked for Desktop) */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                  setLockedFeatureModal('auditar');
-                }}
-                className="studio-action text-slate-800 hover:border-amber-400 gap-1.5 hidden md:inline-flex shrink-0"
-                title="Auditoría Contractual (Exclusivo de Lex Corporativo Desktop)"
-              >
-                <Lock size={13} className="text-amber-500" />
-                <span>Auditar</span>
-                <span className="rounded bg-amber-100 px-1.5 py-0.2 text-[9px] font-extrabold text-amber-900 uppercase">
-                  Desktop
-                </span>
-              </button>
+              <span className="h-5 w-px bg-slate-200 hidden sm:block shrink-0" aria-hidden="true" />
 
-              {/* Opción A & C: Assistant Trigger (Locked for Desktop) */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                  setLockedFeatureModal('fundamentar');
-                }}
-                className="studio-action text-slate-800 hover:border-slate-400 gap-1.5 hidden md:inline-flex shrink-0"
-                title="Fundamentación y Citas (Exclusivo de Lex Corporativo Desktop)"
-              >
-                <Lock size={13} className="text-slate-400" />
-                <span>Fundamentar</span>
-                <span className="rounded bg-slate-100 px-1.5 py-0.2 text-[9px] font-extrabold text-slate-600 uppercase">
-                  Desktop
-                </span>
-              </button>
+              {/* Document Management Group */}
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowDraftsModal(true)}
+                  className="studio-action gap-1.5"
+                  title="Ver borradores locales"
+                >
+                  <FolderOpen size={14} className="text-slate-500" />
+                  <span className="hidden sm:inline">Borradores</span>
+                  {documents.length > 0 && (
+                    <span className="rounded-full bg-slate-100 border border-slate-200 px-1.5 py-0.5 text-[9px] font-bold text-slate-600">
+                      {documents.length}
+                    </span>
+                  )}
+                </button>
 
-              {/* Borradores */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                  setShowDraftsModal(true);
-                }}
-                className="studio-action shrink-0"
-                title="Ver borradores locales"
-              >
-                <FolderOpen size={14} />
-                <span>Borradores</span>
-                {documents.length > 0 && (
-                  <span className="rounded-full bg-slate-100 px-1.5 py-0.2 text-[9px] font-bold text-slate-600">
-                    {documents.length}
+                <input
+                  ref={fileInput}
+                  className="hidden"
+                  type="file"
+                  accept=".docx,.txt,.pdf,text/plain,application/pdf"
+                  onChange={(event) => handleImport(event.target.files?.[0])}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInput.current?.click()}
+                  className="studio-action hidden sm:inline-flex gap-1.5"
+                  title="Importar DOCX, PDF o TXT"
+                >
+                  <Upload size={14} className="text-slate-500" />
+                  <span className="hidden md:inline">Importar</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={shareDocument}
+                  className="studio-action inline-flex gap-1.5"
+                  title="Compartir documento o copiar texto"
+                  aria-label="Compartir documento"
+                >
+                  <Share2 size={14} className="text-slate-500" />
+                  <span className="hidden sm:inline">Compartir</span>
+                </button>
+              </div>
+
+              <span className="h-5 w-px bg-slate-200 hidden md:block shrink-0" aria-hidden="true" />
+
+              {/* Desktop Tools */}
+              <div className="hidden md:flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setLockedFeatureModal('auditar')}
+                  className="studio-action text-slate-600 hover:text-slate-900 border-slate-200 gap-1.5"
+                  title="Auditoría Contractual (Exclusivo de Lex Corporativo Desktop)"
+                >
+                  <Lock size={12} className="text-slate-400" />
+                  <span>Auditar</span>
+                  <span className="rounded bg-slate-100 px-1 py-0.5 text-[8px] font-mono font-medium text-slate-500">
+                    EXE
                   </span>
-                )}
-              </button>
+                </button>
 
-              {/* Import Button */}
-              <button
-                type="button"
-                onClick={() => fileInput.current?.click()}
-                className="studio-action hidden sm:inline-flex shrink-0"
-                title="Importar DOCX, PDF o TXT"
-              >
-                <Upload size={14} />
-                <span className="hidden md:inline">Importar</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setLockedFeatureModal('fundamentar')}
+                  className="studio-action text-slate-600 hover:text-slate-900 border-slate-200 gap-1.5"
+                  title="Fundamentación y Citas (Exclusivo de Lex Corporativo Desktop)"
+                >
+                  <Lock size={12} className="text-slate-400" />
+                  <span>Fundamentar</span>
+                  <span className="rounded bg-slate-100 px-1 py-0.5 text-[8px] font-mono font-medium text-slate-500">
+                    EXE
+                  </span>
+                </button>
+              </div>
 
-              {/* Share Button (Desktop/Tablet) */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                  void shareDocument();
-                }}
-                className="studio-action hidden sm:inline-flex shrink-0"
-                title="Compartir documento o copiar texto"
-              >
-                <Share2 size={14} />
-              </button>
-
-              {/* Export Dropdown */}
+              {/* Export Menu */}
               <details ref={exportDetailsRef} className="relative shrink-0">
-                <summary className="studio-action cursor-pointer list-none gap-1 bg-slate-900 text-white border-slate-900 hover:bg-slate-800">
-                  <Download size={14} />
+                <summary className="studio-action cursor-pointer list-none gap-1.5 border-slate-300 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-400 shadow-card">
+                  <Download size={14} className="text-slate-600" />
                   <span>Exportar</span>
-                  <ChevronDown size={12} />
+                  <ChevronDown size={12} className="text-slate-400" />
                 </summary>
                 <div className="absolute right-0 z-50 mt-2 w-52 rounded-xl border border-slate-200 bg-white p-1.5 shadow-dialog">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      exportDetailsRef.current?.removeAttribute('open');
-                      void shareDocument();
-                    }}
-                    className="studio-menu-item sm:hidden text-amber-900 font-bold border-b border-slate-100 pb-1.5 mb-1"
-                  >
-                    <Share2 size={13} className="inline mr-1.5 text-amber-700" />
-                    <span>Compartir documento</span>
-                  </button>
-                  <button type="button" onClick={() => { exportDetailsRef.current?.removeAttribute('open'); exportDocx(); }} className="studio-menu-item">
+                  <button type="button" onClick={exportDocx} className="studio-menu-item">
                     Copia Word (.docx)
                   </button>
-                  <button type="button" onClick={() => { exportDetailsRef.current?.removeAttribute('open'); exportPdf(); }} className="studio-menu-item">
+                  <button type="button" onClick={exportPdf} className="studio-menu-item">
                     Copia PDF Membretada
                   </button>
-                  <button type="button" onClick={() => { exportDetailsRef.current?.removeAttribute('open'); exportTxt(); }} className="studio-menu-item">
+                  <button type="button" onClick={exportTxt} className="studio-menu-item">
                     Texto plano (.txt)
                   </button>
                 </div>
@@ -625,7 +627,6 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
 
             {/* Mobile Compact Toolbar (sm:hidden) */}
             <div className="flex sm:hidden items-center justify-between w-full gap-1.5">
-              {/* Primary Left Action: Instrumentos */}
               <button
                 type="button"
                 onClick={() => {
@@ -639,58 +640,37 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                 <span className="truncate max-w-[130px]">
                   {selectedTemplate ? selectedTemplate.title : 'Instrumentos'}
                 </span>
-                <ChevronDown size={11} className="opacity-70" />
+                <ChevronDown size={12} className="opacity-75" />
               </button>
 
-              {/* Right Group: Exportar + Menú agrupado (...) */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                {/* Mobile Export Dropdown */}
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={shareDocument}
+                  className="studio-action p-2 min-h-8 min-w-8 text-slate-700 active:scale-95"
+                  title="Compartir documento"
+                  aria-label="Compartir documento"
+                >
+                  <Share2 size={15} />
+                </button>
+
                 <details ref={mobileExportDetailsRef} className="relative shrink-0">
-                  <summary className="studio-action cursor-pointer list-none gap-1 bg-slate-900 text-white border-slate-900 py-1.5 px-2.5 text-xs active:scale-95 shadow-2xs">
-                    <Download size={13} />
-                    <span>Exportar</span>
-                    <ChevronDown size={10} />
+                  <summary
+                    role="button"
+                    className="studio-action cursor-pointer list-none p-1.5 min-h-8 min-w-8 text-slate-700 active:scale-95 rounded-xl border border-slate-200 bg-white flex items-center justify-center"
+                    aria-label="Exportar"
+                    title="Exportar documento"
+                  >
+                    <Download size={15} />
                   </summary>
-                  <div className="absolute right-0 z-50 mt-2 w-52 rounded-xl border border-slate-200 bg-white p-1.5 shadow-dialog text-xs">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        mobileExportDetailsRef.current?.removeAttribute('open');
-                        void shareDocument();
-                      }}
-                      className="studio-menu-item text-amber-900 font-bold border-b border-slate-100 pb-1.5 mb-1"
-                    >
-                      <Share2 size={13} className="inline mr-1.5 text-amber-700" />
-                      <span>Compartir documento</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        mobileExportDetailsRef.current?.removeAttribute('open');
-                        exportDocx();
-                      }}
-                      className="studio-menu-item"
-                    >
+                  <div className="absolute right-0 z-50 mt-2 w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-dialog text-xs">
+                    <button type="button" onClick={exportDocx} className="studio-menu-item">
                       Copia Word (.docx)
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        mobileExportDetailsRef.current?.removeAttribute('open');
-                        exportPdf();
-                      }}
-                      className="studio-menu-item"
-                    >
+                    <button type="button" onClick={exportPdf} className="studio-menu-item">
                       Copia PDF Membretada
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        mobileExportDetailsRef.current?.removeAttribute('open');
-                        exportTxt();
-                      }}
-                      className="studio-menu-item"
-                    >
+                    <button type="button" onClick={exportTxt} className="studio-menu-item">
                       Texto plano (.txt)
                     </button>
                   </div>
@@ -830,13 +810,13 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
       )}
 
       {/* Main Workspace: Clean Centered Canvas */}
-      <main className="mx-auto w-full max-w-4xl flex-1 px-2.5 py-2.5 sm:px-6 sm:py-8 pb-24 sm:pb-12">
-        {/* Mobile Subtle Catalog Suggestion Banner (Phase 1) */}
+      <main className="mx-auto w-full max-w-4xl flex-1 px-3 py-2 sm:px-6 sm:py-8 pb-36 sm:pb-12">
+        {/* Mobile Subtle Catalog Suggestion Banner */}
         {showMobileCatalogPrompt && isUntouchedStudioDocument(currentDocument) && (
           <div
             role="status"
             aria-label="Sugerencia de catálogo"
-            className="sm:hidden mb-2.5 flex items-center justify-between gap-2 rounded-xl border border-amber-200/90 bg-amber-50/95 px-3 py-2 text-xs text-amber-950 shadow-2xs"
+            className="sm:hidden mb-2.5 flex items-center justify-between gap-2 rounded-xl border border-amber-200/90 bg-amber-50/95 px-3 py-2 text-xs text-amber-950 shadow-card"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <Sparkles size={14} className="text-amber-700 shrink-0" />
@@ -850,14 +830,14 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                   setShowCatalogModal(true);
                   setShowMobileCatalogPrompt(false);
                 }}
-                className="rounded-lg bg-slate-900 px-2.5 py-1 text-[10px] font-extrabold text-amber-300 active:scale-95 transition"
+                className="rounded-lg bg-slate-900 px-2.5 py-1 text-[10px] font-extrabold text-amber-300 active:scale-95 transition cursor-pointer"
               >
                 Explorar
               </button>
               <button
                 type="button"
                 onClick={() => setShowMobileCatalogPrompt(false)}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded-md active:scale-95 transition"
+                className="p-1 text-slate-400 hover:text-slate-600 rounded-md active:scale-95 transition cursor-pointer"
                 aria-label="Cerrar sugerencia"
               >
                 <X size={13} />
@@ -867,73 +847,49 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
         )}
 
         {/* Paper Sheet */}
-        <article className="legal-letterhead mx-auto flex w-full flex-col justify-between rounded-xl sm:rounded-2xl bg-white px-3.5 py-4 sm:px-12 sm:py-10 shadow-xs sm:shadow-sm transition-all border border-slate-200/90">
+        <article className="legal-letterhead mx-auto flex w-full flex-col justify-between rounded-xl sm:rounded-2xl bg-white px-4 py-4 sm:px-12 sm:py-10 shadow-card sm:shadow-card transition-all border border-slate-200/90">
           {/* Institutional Letterhead Header */}
-          <header className="border-t-2 border-legal-gold border-b border-slate-900/80 sm:border-b-2 pb-1.5 sm:pb-4 pt-1 mb-2.5 sm:mb-6">
+          <header className="border-t-2 border-legal-gold border-b border-slate-200 pb-3 mb-4 sm:mb-6">
             <div className="flex items-center justify-between gap-2 sm:gap-4">
-              <div className="hidden sm:flex items-center gap-2.5 sm:gap-3">
-                <div className="flex h-8 w-8 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-950 p-1 sm:p-1.5 shadow-xs">
+              <div className="hidden sm:flex items-center gap-2 sm:gap-3">
+                <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-900 p-1 sm:p-1.5 shadow-card">
                   <img src={logoMark} alt="Lex Corporativo" className="h-full w-full object-contain" />
                 </div>
                 <div>
-                  <span className="font-serif text-xs sm:text-sm font-extrabold tracking-[0.16em] sm:tracking-[0.2em] text-slate-950 block">
+                  <span className="font-serif text-xs sm:text-sm font-bold tracking-[0.16em] sm:tracking-[0.2em] text-slate-950 block">
                     LEX CORPORATIVO
                   </span>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
                     Estudio de Ingeniería y Redacción Jurídica
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap text-left sm:text-right text-[9px] sm:text-[10px] font-bold text-slate-400 w-full sm:w-auto justify-between sm:justify-end">
-                <span className="text-slate-900 font-extrabold tracking-wide">
+              <div className="flex items-center gap-2 flex-wrap text-left sm:text-right text-[10px] font-medium text-slate-400 w-full sm:w-auto justify-between sm:justify-end">
+                <span className="font-mono text-slate-700 font-bold tracking-tight">
                   FOLIO · {currentDocument.id.slice(0, 8).toUpperCase()}
                 </span>
                 <span className="text-slate-300">·</span>
                 <span className="uppercase text-slate-500">
                   {new Date(currentDocument.updatedAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </span>
-                <span className="inline-block rounded bg-amber-50 border border-amber-200/60 px-1.5 py-0.2 text-[8px] sm:text-[9px] font-black text-amber-900 uppercase">
+                <span className="inline-block rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-[9px] font-medium text-slate-600 uppercase tracking-wide">
                   Borrador
                 </span>
               </div>
             </div>
           </header>
 
-
-          {/* Active Template Quick Banner (Mobile) */}
+          {/* Active Template Banner (Harmonized Institutional Style) */}
           {selectedTemplate && (
-            <div className="mb-2.5 sm:hidden flex items-center justify-between gap-1.5 rounded-xl border border-amber-200/80 bg-gradient-to-r from-amber-50/90 to-white px-2.5 py-1.5 text-xs text-amber-950 shadow-2xs">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-200/80 text-amber-800 shrink-0">
-                  <Sparkles size={11} />
-                </span>
-                <span className="truncate font-extrabold text-[11px] text-amber-950">{selectedTemplate.title}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                  openVariables();
-                }}
-                aria-label="Variables de la plantilla"
-                className="shrink-0 rounded-lg bg-amber-800 hover:bg-amber-900 px-2 py-1 text-[10px] font-extrabold text-white transition active:scale-95 shadow-2xs"
-              >
-                Variables ({selectedTemplate.fields.length})
-              </button>
-            </div>
-          )}
-
-          {/* Active Template Quick Banner (Desktop/Tablet only; on mobile the toolbar provides clear access) */}
-          {selectedTemplate && (
-            <div className="mb-3 sm:mb-5 hidden sm:flex items-center justify-between gap-2 rounded-xl border border-amber-200/80 bg-gradient-to-r from-amber-50/90 via-amber-50/50 to-white px-3.5 py-2.5 text-xs text-amber-950 shadow-2xs">
+            <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-slate-200/90 bg-slate-50/90 p-3 sm:px-4 sm:py-2.5 text-xs text-slate-700 shadow-card">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-200/80 text-amber-800 shrink-0">
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-legal-gold/15 text-legal-golddark shrink-0">
                   <Sparkles size={13} />
                 </span>
                 <div className="truncate">
-                  <span className="font-bold text-slate-800">Instrumento activo: </span>
-                  <span className="font-extrabold text-amber-900">{selectedTemplate.title}</span>
-                  <span className="text-slate-500 ml-1.5 text-[11px]">
+                  <span className="text-slate-500 font-medium">Instrumento activo: </span>
+                  <strong className="text-slate-950 font-bold">{selectedTemplate.title}</strong>
+                  <span className="text-slate-400 ml-2 font-mono text-[11px]">
                     ({selectedTemplate.fields.length} variables disponibles)
                   </span>
                 </div>
@@ -943,15 +899,15 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                   type="button"
                   onClick={openVariables}
                   aria-label="Rellenar variables en lote"
-                  className="inline-flex items-center gap-1 rounded-lg bg-amber-800 hover:bg-amber-900 px-3 py-1.5 text-[11px] font-extrabold text-white transition cursor-pointer shadow-2xs active:scale-95"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 transition active:scale-95 shadow-card cursor-pointer"
                 >
-                  <SlidersHorizontal size={12} />
+                  <SlidersHorizontal size={12} className="text-legal-golddark" />
                   <span>Rellenar variables en lote</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowCatalogModal(true)}
-                  className="text-[11px] font-bold text-slate-600 hover:text-slate-900 underline px-1 py-1 cursor-pointer"
+                  className="text-xs font-medium text-slate-500 hover:text-slate-900 underline px-1 py-1 cursor-pointer"
                 >
                   Cambiar
                 </button>
@@ -960,7 +916,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
           )}
 
           {/* Quick Format & Title Header */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3 border-b border-slate-100 pb-2 sm:pb-3 mb-2 sm:mb-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4 border-b border-slate-100 pb-3 mb-4">
             {/* Document Title Input */}
             <div className="flex-1 min-w-0">
               <input
@@ -971,110 +927,105 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                 onChange={(event) =>
                   setCurrentDocument((doc) => ({ ...doc, title: event.target.value, updatedAt: new Date().toISOString() }))
                 }
-                className="w-full rounded-lg border border-transparent bg-transparent px-1.5 sm:px-2 py-1 text-base sm:text-base font-extrabold text-slate-900 outline-none transition focus:border-legal-gold focus:bg-slate-50"
+                className="w-full rounded-lg border border-transparent bg-transparent px-2 py-1 font-serif text-lg sm:text-xl font-bold text-slate-900 outline-none transition focus:border-legal-gold focus:bg-slate-50 placeholder:font-sans placeholder:text-sm placeholder:font-normal placeholder:text-slate-400"
                 placeholder="Título del documento o contrato…"
+                enterKeyHint="done"
+                autoCapitalize="sentences"
               />
             </div>
 
-            {/* In-Editor Quick Toolbar (Responsive: Sticky full-width on mobile under header, right-aligned static on desktop) */}
+            {/* In-Editor Quick Toolbar */}
             <div
               role="toolbar"
               aria-label="Herramientas rápidas de edición"
-              className="sticky top-16 z-20 sm:static flex items-center justify-between sm:justify-end gap-1 rounded-xl bg-slate-50/95 sm:bg-slate-50 backdrop-blur-xs sm:backdrop-blur-none border border-slate-200/80 p-1 w-full sm:w-auto shadow-2xs"
+              className="hidden sm:flex items-center gap-0.5 rounded-xl bg-slate-50 border border-slate-200/80 p-1 self-end sm:self-auto shadow-card"
             >
-              <div className="flex items-center gap-0.5 sm:gap-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                    editor?.chain().focus().undo().run();
-                  }}
-                  className="studio-icon-button h-8 w-8 min-h-8 min-w-8 sm:h-7 sm:w-7 sm:min-h-7 sm:min-w-7 text-slate-600 active:scale-95"
-                  title="Deshacer (Ctrl+Z)"
-                  aria-label="Deshacer"
-                >
-                  <Undo2 size={14} className="sm:w-3.5 sm:h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                    editor?.chain().focus().redo().run();
-                  }}
-                  className="studio-icon-button h-8 w-8 min-h-8 min-w-8 sm:h-7 sm:w-7 sm:min-h-7 sm:min-w-7 text-slate-600 active:scale-95"
-                  title="Rehacer (Ctrl+Y)"
-                  aria-label="Rehacer"
-                >
-                  <Redo2 size={14} className="sm:w-3.5 sm:h-3.5" />
-                </button>
-              </div>
-
-              <div className="h-4 w-px bg-slate-200 mx-0.5" />
-
-              <div className="flex items-center gap-0.5 sm:gap-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                    editor?.chain().focus().toggleBold().run();
-                  }}
-                  className={`studio-icon-button h-8 w-8 min-h-8 min-w-8 sm:h-7 sm:w-7 sm:min-h-7 sm:min-w-7 active:scale-95 ${
-                    editor?.isActive('bold') ? 'bg-slate-900 text-amber-300' : 'text-slate-600'
-                  }`}
-                  title="Negrita (Ctrl+B)"
-                  aria-label="Negrita"
-                >
-                  <Bold size={14} className="sm:w-3.5 sm:h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                    editor?.chain().focus().toggleItalic().run();
-                  }}
-                  className={`studio-icon-button h-8 w-8 min-h-8 min-w-8 sm:h-7 sm:w-7 sm:min-h-7 sm:min-w-7 active:scale-95 ${
-                    editor?.isActive('italic') ? 'bg-slate-900 text-amber-300' : 'text-slate-600'
-                  }`}
-                  title="Cursiva (Ctrl+I)"
-                  aria-label="Cursiva"
-                >
-                  <Italic size={14} className="sm:w-3.5 sm:h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                    editor?.chain().focus().toggleBulletList().run();
-                  }}
-                  className={`studio-icon-button h-8 w-8 min-h-8 min-w-8 sm:h-7 sm:w-7 sm:min-h-7 sm:min-w-7 active:scale-95 ${
-                    editor?.isActive('bulletList') ? 'bg-slate-900 text-amber-300' : 'text-slate-600'
-                  }`}
-                  title="Lista con viñetas"
-                  aria-label="Lista con viñetas"
-                >
-                  <List size={14} className="sm:w-3.5 sm:h-3.5" />
-                </button>
-              </div>
-
-              {/* Mobile direct citation / foundation button */}
-              <div className="sm:hidden flex items-center pl-1 border-l border-slate-200">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                    const { from, to } = editor?.state.selection ?? { from: 0, to: 0 };
-                    const selectedText = from !== to ? editor?.state.doc.textBetween(from, to, ' ').trim() : '';
-                    if (selectedText) setAssistantQuery(selectedText);
-                    setLockedFeatureModal('fundamentar');
-                  }}
-                  className="studio-icon-button h-8 px-2 min-h-8 min-w-8 text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200/80 rounded-lg flex items-center gap-1 active:scale-95"
-                  title="Fundamentar cita legal (Desktop)"
-                  aria-label="Fundamentar cita legal"
-                >
-                  <Lock size={12} className="text-amber-600" />
-                  <span>Citar</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+                  editor?.chain().focus().undo().run();
+                }}
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-card transition cursor-pointer"
+                title="Deshacer"
+                aria-label="Deshacer"
+              >
+                <Undo2 size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+                  editor?.chain().focus().redo().run();
+                }}
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-card transition cursor-pointer"
+                title="Rehacer"
+                aria-label="Rehacer"
+              >
+                <Redo2 size={13} />
+              </button>
+              <div className="h-4 w-px bg-slate-200 mx-1" />
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+                  editor?.chain().focus().toggleBold().run();
+                }}
+                className={`flex h-7 w-7 items-center justify-center rounded-lg transition cursor-pointer ${
+                  editor?.isActive('bold')
+                    ? 'bg-slate-900 text-white font-bold shadow-card'
+                    : 'text-slate-600 hover:bg-white hover:text-slate-900'
+                }`}
+                title="Negrita"
+                aria-label="Negrita"
+              >
+                <Bold size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+                  editor?.chain().focus().toggleItalic().run();
+                }}
+                className={`flex h-7 w-7 items-center justify-center rounded-lg transition cursor-pointer ${
+                  editor?.isActive('italic')
+                    ? 'bg-slate-900 text-white font-bold shadow-card'
+                    : 'text-slate-600 hover:bg-white hover:text-slate-900'
+                }`}
+                title="Cursiva"
+                aria-label="Cursiva"
+              >
+                <Italic size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+                  editor?.chain().focus().toggleBulletList().run();
+                }}
+                className={`flex h-7 w-7 items-center justify-center rounded-lg transition cursor-pointer ${
+                  editor?.isActive('bulletList')
+                    ? 'bg-slate-900 text-white font-bold shadow-card'
+                    : 'text-slate-600 hover:bg-white hover:text-slate-900'
+                }`}
+                title="Lista con viñetas"
+                aria-label="Lista con viñetas"
+              >
+                <List size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+                  setAssistantQuery(editor?.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to, ' ').trim() || '');
+                  setShowAssistantDrawer(true);
+                }}
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-card transition cursor-pointer"
+                title="Fundamentar cita legal"
+                aria-label="Fundamentar cita legal"
+              >
+                <BookOpen size={13} />
+              </button>
             </div>
           </div>
 
@@ -1096,14 +1047,32 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
           <FootnotesAppendix citations={currentDocument.citations} onRemoveCitation={removeCitation} />
 
           {/* Institutional Letterhead Footer */}
-          <footer className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 border-t border-slate-200 pt-3 sm:pt-4 text-[9px] text-slate-400">
-            <span>Lex Corporativo PWA · Borradores locales</span>
-            <span className="font-extrabold uppercase text-slate-500 text-[8px] sm:text-[9px]">
+          <footer className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-slate-200 pt-3 sm:pt-4 text-[9px] sm:text-[10px] text-slate-400">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span>Lex Corporativo PWA · Borradores locales</span>
+              <span className="hidden sm:inline">·</span>
+              <span className="font-mono text-slate-500 font-medium">
+                {wordCount} palabras · ~{readingMinutes} min de lectura
+              </span>
+            </div>
+            <span className="font-bold uppercase text-slate-500 text-[8px] sm:text-[9px]">
               Vista de edición · Paginación al exportar
             </span>
           </footer>
         </article>
       </main>
+
+      {/* Mobile Floating Action & Formatting Bar (Thumb Zone) */}
+      <MobileEditorToolbar
+        editor={editor}
+        onOpenAssistant={() => setShowAssistantDrawer(true)}
+        onShare={shareDocument}
+        hasVariables={Boolean(selectedTemplate && selectedTemplate.fields.length > 0)}
+        variableCount={selectedTemplate?.fields.length ?? 0}
+        onOpenVariables={openVariables}
+        wordCount={wordCount}
+        readingMinutes={readingMinutes}
+      />
 
       {/* Opción A & C: Assistant Drawer for Foundation Search & Insertion */}
       {showAssistantDrawer && (
@@ -1174,7 +1143,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
           className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/60 p-0 sm:items-center sm:p-4 backdrop-blur-xs"
         >
           <div className="flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden rounded-t-3xl border border-slate-200 bg-white shadow-dialog sm:rounded-2xl">
-            <div className="flex justify-center pb-0 pt-2.5 sm:hidden">
+            <div className="flex justify-center pb-0 pt-3 sm:hidden">
               <div className="h-1 w-10 rounded-full bg-slate-300" />
             </div>
             <div className="flex items-center justify-between border-b border-slate-200 p-4">
@@ -1207,7 +1176,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                       value={formData[field.id] ?? ''}
                       onChange={(e) => setFormData((prev) => ({ ...prev, [field.id]: e.target.value }))}
                       placeholder={field.placeholder}
-                      className="studio-input p-2.5 text-base sm:text-xs"
+                      className="studio-input p-3 text-base sm:text-xs"
                     />
                   ) : (
                     <input
@@ -1253,12 +1222,12 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
           className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/60 p-0 sm:items-center sm:p-4 backdrop-blur-xs"
         >
           <div className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-slate-200 bg-white shadow-dialog sm:rounded-2xl">
-            <div className="flex justify-center pb-0 pt-2.5 sm:hidden">
+            <div className="flex justify-center pb-0 pt-3 sm:hidden">
               <div className="h-1 w-10 rounded-full bg-slate-300" />
             </div>
             <div className="flex items-center justify-between border-b border-slate-200 p-4">
               <div>
-                <h2 className="font-serif text-lg font-semibold text-slate-950">Borradores locales</h2>
+                <h2 className="font-serif text-lg font-medium text-slate-950">Borradores locales</h2>
                 <p className="text-xs text-slate-500">Guardados en IndexedDB en este dispositivo.</p>
               </div>
               <button

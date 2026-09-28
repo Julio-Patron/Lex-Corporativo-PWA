@@ -63,36 +63,36 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Top Global Navigation Bar */}
-      <header className="sticky top-0 z-30 border-b border-slate-800 bg-legal-shell/95 backdrop-blur-md text-white shadow-md">
+      <header className="sticky top-0 z-30 border-b border-slate-800 bg-legal-shell/95 backdrop-blur-md text-white shadow-premium">
         <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6">
           {/* Brand Logo and Title - Returns to Home */}
           <button
             type="button"
             onClick={onGoHome}
-            className="flex items-center gap-2.5 text-left focus:outline-hidden hover:opacity-90 transition cursor-pointer"
+            className="flex items-center gap-2 text-left focus:outline-hidden hover:opacity-90 transition cursor-pointer"
             aria-label="Ir a la pantalla de inicio"
             title="Volver a la portada de inicio"
           >
-            <span className="flex h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-legal-gold/30 bg-black shadow-md shadow-black/30">
+            <span className="flex h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-legal-gold/30 bg-legal-shell shadow-premium">
               <img src={logoMark} alt="Lex Corporativo" className="h-full w-full object-cover" />
             </span>
             <span className="hidden sm:block">
-              <strong className="block font-serif text-sm font-semibold tracking-wide text-white leading-none">
+              <strong className="block font-serif text-sm font-medium tracking-wide text-white leading-none">
                 Lex Corporativo
               </strong>
-              <span className="mt-1 block text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400">Plataforma jurídica local</span>
+              <span className="mt-1 block text-[9px] font-medium uppercase tracking-[0.16em] text-slate-400">Plataforma jurídica local</span>
             </span>
           </button>
 
           {/* Module Switcher Tabs */}
           <nav
             aria-label="Módulos de consulta e ingeniería jurídica"
-            className="hidden md:flex min-w-0 flex-1 items-center justify-center gap-1.5"
+            className="hidden md:flex min-w-0 flex-1 items-center justify-center gap-2"
           >
             <button
               type="button"
               onClick={onGoHome}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
               title="Volver a la portada de inicio"
             >
               <Home size={15} />
@@ -105,9 +105,9 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
             <button
               type="button"
               onClick={() => onTabChange('estudio')}
-              className={`flex min-h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-bold transition cursor-pointer ${
+              className={`flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'estudio'
-                  ? 'bg-legal-gold text-slate-950 shadow-sm font-extrabold'
+                  ? 'bg-legal-gold text-slate-950 shadow-card font-bold'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
@@ -118,9 +118,9 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
             <button
               type="button"
               onClick={() => onTabChange('normativa')}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'normativa'
-                  ? 'bg-legal-gold text-slate-950 shadow-sm font-extrabold'
+                  ? 'bg-legal-gold text-slate-950 shadow-card font-bold'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
@@ -132,9 +132,9 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
             <button
               type="button"
               onClick={() => onTabChange('licitaciones')}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'licitaciones'
-                  ? 'bg-legal-gold text-slate-950 shadow-sm font-extrabold'
+                  ? 'bg-legal-gold text-slate-950 shadow-card font-bold'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
@@ -143,34 +143,34 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
               <span className="lg:hidden">Licitaciones</span>
             </button>
 
-            <span className="mx-1.5 h-5 w-px bg-slate-800" aria-hidden="true" />
+            <span className="mx-2 h-5 w-px bg-slate-800" aria-hidden="true" />
 
             {/* Desktop Presentation & Installer Showcase */}
             <button
               type="button"
               onClick={() => onTabChange('desktop')}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer border ${
+              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer border ${
                 activeTab === 'desktop'
-                  ? 'bg-legal-gold text-slate-950 border-legal-gold shadow-sm font-extrabold'
+                  ? 'bg-legal-gold text-slate-950 border-legal-gold shadow-card font-bold'
                   : 'border-slate-700/80 bg-slate-900/60 text-slate-300 hover:border-slate-600 hover:text-white hover:bg-slate-800/80'
               }`}
             >
               <MonitorDown size={14} className={activeTab === 'desktop' ? 'text-slate-950' : 'text-amber-400'} />
               <span>Desktop</span>
-              <span className="rounded-sm bg-legal-gold/20 px-1 py-0.2 text-[8px] font-extrabold uppercase text-amber-300">EXE</span>
+              <span className="rounded-sm bg-legal-gold/20 px-1 py-px text-[8px] font-bold uppercase text-amber-300">EXE</span>
             </button>
           </nav>
 
           {/* Action Buttons: Coverage & Info */}
           <div className="flex items-center gap-1">
-            <div className="hidden items-center gap-2 rounded-xl border border-emerald-800 bg-emerald-950 px-3 py-1.5 xl:flex">
+            <div className="hidden items-center gap-2 rounded-xl border border-emerald-800 bg-emerald-950 px-3 py-2 xl:flex">
               <ShieldCheck size={14} className="text-emerald-400" />
               <span className="text-[10px] font-bold leading-tight text-emerald-300">100% Local y Privado<br /><span className="font-normal text-emerald-400">Disponible sin conexión</span></span>
             </div>
             <button
               type="button"
               onClick={() => setPanel('coverage')}
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-xl px-3 text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
               aria-label="Abrir cobertura y fuentes"
             >
               <Map size={17} />
@@ -204,14 +204,14 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
         {notifications.map((notification) => (
           <div
             key={notification.id}
-            className="pointer-events-auto flex items-start gap-2.5 rounded-2xl border border-slate-700 bg-slate-950/95 p-3.5 text-xs text-white shadow-2xl backdrop-blur-md animate-fadeIn"
+            className="pointer-events-auto flex items-start gap-2 rounded-2xl border border-slate-700 bg-slate-950/95 p-4 text-xs text-white shadow-dialog backdrop-blur-md animate-fadeIn"
           >
             {notification.type === 'success' ? (
-              <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-400" />
+              <CheckCircle2 size={16} className="mt-1 shrink-0 text-emerald-400" />
             ) : notification.type === 'error' ? (
-              <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-400" />
+              <AlertCircle size={16} className="mt-1 shrink-0 text-red-400" />
             ) : (
-              <Info size={16} className="mt-0.5 shrink-0 text-legal-gold" />
+              <Info size={16} className="mt-1 shrink-0 text-legal-gold" />
             )}
             <p className="flex-1 leading-5 text-slate-200">{notification.message}</p>
             <button
@@ -229,7 +229,7 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
       {/* PWA Install Prompt */}
       {installPrompt && (
         <div
-          className="fixed bottom-20 sm:bottom-4 left-3 right-3 z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950 p-3.5 text-white shadow-2xl animate-slideUp"
+          className="fixed bottom-20 sm:bottom-4 left-3 right-3 z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950 p-4 text-white shadow-dialog animate-slideUp"
           style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
         >
           <img
@@ -237,13 +237,13 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
             alt=""
             className="h-10 w-10 shrink-0 rounded-xl border border-legal-gold/20 object-cover"
           />
-          <p className="flex-1 text-xs font-semibold leading-5">
+          <p className="flex-1 text-xs font-medium leading-5">
             Instala Lex Corporativo para acceder sin conexión a legislación federal y licitaciones.
           </p>
           <button
             type="button"
             onClick={install}
-            className="min-h-10 rounded-xl bg-legal-gold px-4 text-xs font-extrabold text-slate-950 hover:bg-legal-goldhover active:scale-95 transition"
+            className="min-h-10 rounded-xl bg-legal-gold px-4 text-xs font-bold text-slate-950 hover:bg-legal-goldhover active:scale-95 transition"
           >
             Instalar
           </button>
@@ -267,7 +267,7 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
         <button
           type="button"
           onClick={onGoHome}
-          className="relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 hover:text-slate-200 active:scale-95 transition"
+          className="relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-200 active:scale-95 transition"
           title="Volver a la portada de inicio"
         >
           <Home size={18} />
@@ -277,7 +277,7 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
         <button
           type="button"
           onClick={() => onTabChange('estudio')}
-          className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-[9px] font-extrabold uppercase tracking-wider active:scale-95 transition ${
+          className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-[9px] font-bold uppercase tracking-wider active:scale-95 transition ${
             activeTab === 'estudio' ? 'text-legal-gold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -289,7 +289,7 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
         <button
           type="button"
           onClick={() => onTabChange('normativa')}
-          className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-[10px] font-extrabold uppercase tracking-widest active:scale-95 transition ${
+          className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-[10px] font-bold uppercase tracking-widest active:scale-95 transition ${
             activeTab === 'normativa'
               ? 'text-legal-gold'
               : 'text-slate-400 hover:text-slate-200'
@@ -305,7 +305,7 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
         <button
           type="button"
           onClick={() => onTabChange('licitaciones')}
-          className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-[10px] font-extrabold uppercase tracking-widest active:scale-95 transition ${
+          className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-[10px] font-bold uppercase tracking-widest active:scale-95 transition ${
             activeTab === 'licitaciones'
               ? 'text-legal-gold'
               : 'text-slate-400 hover:text-slate-200'
@@ -321,7 +321,7 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
         <button
           type="button"
           onClick={() => onTabChange('desktop')}
-          className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-[10px] font-extrabold uppercase tracking-widest active:scale-95 transition ${
+          className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-[10px] font-bold uppercase tracking-widest active:scale-95 transition ${
             activeTab === 'desktop'
               ? 'text-legal-gold'
               : 'text-slate-400 hover:text-slate-200'

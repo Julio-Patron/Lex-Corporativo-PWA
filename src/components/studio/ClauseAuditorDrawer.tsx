@@ -182,7 +182,7 @@ export function ClauseAuditorDrawer({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="flex max-h-[88vh] sm:max-h-full h-auto sm:h-full w-full max-w-lg sm:max-w-md flex-col rounded-t-3xl sm:rounded-none bg-white shadow-2xl animate-slideUp sm:animate-slideLeft">
+      <div className="flex max-h-[88vh] sm:max-h-full h-auto sm:h-full w-full max-w-lg sm:max-w-md flex-col rounded-t-3xl sm:rounded-none bg-white shadow-dialog animate-slideUp sm:animate-slideLeft">
         {/* Mobile Pull Handle */}
         <div className="pt-3 pb-1 flex justify-center sm:hidden">
           <div className="w-12 h-1.5 rounded-full bg-slate-300" />
@@ -190,7 +190,7 @@ export function ClauseAuditorDrawer({
 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 bg-slate-50/80 rounded-t-3xl sm:rounded-none">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-900">
               <Sparkles size={18} />
             </span>
@@ -214,8 +214,8 @@ export function ClauseAuditorDrawer({
           <div className="flex items-center justify-between">
             <div>
               <span className="text-xs font-bold text-slate-500">Salud de Fundamentación</span>
-              <div className="mt-0.5 flex items-baseline gap-2">
-                <span className={`text-2xl font-black ${score === 100 ? 'text-emerald-700' : score > 50 ? 'text-amber-600' : 'text-slate-900'}`}>
+              <div className="mt-1 flex items-baseline gap-2">
+                <span className={`text-2xl font-bold ${score === 100 ? 'text-emerald-700' : score > 50 ? 'text-amber-600' : 'text-slate-900'}`}>
                   {score}%
                 </span>
                 <span className="text-xs text-slate-500">
@@ -224,7 +224,7 @@ export function ClauseAuditorDrawer({
               </div>
             </div>
             <span
-              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold ${
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold ${
                 missingFundamentation.length === 0
                   ? 'bg-emerald-100 text-emerald-800'
                   : 'bg-amber-100 text-amber-900'
@@ -246,7 +246,7 @@ export function ClauseAuditorDrawer({
         </div>
 
         {/* Clauses List */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-3.5">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {detectedClauses.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
               <FileCheck size={28} className="mx-auto text-slate-400" />
@@ -259,14 +259,14 @@ export function ClauseAuditorDrawer({
             detectedClauses.map((rule) => (
               <div
                 key={rule.id}
-                className={`rounded-xl border p-3.5 text-left transition ${
+                className={`rounded-xl border p-4 text-left transition ${
                   rule.isFundamented
                     ? 'border-emerald-200 bg-emerald-50/40'
-                    : 'border-amber-200/90 bg-amber-50/40 shadow-xs'
+                    : 'border-amber-200/90 bg-amber-50/40 shadow-card'
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     {rule.isFundamented ? (
                       <CheckCircle2 size={15} className="text-emerald-700 shrink-0" />
                     ) : (
@@ -274,17 +274,17 @@ export function ClauseAuditorDrawer({
                     )}
                     <h3 className="text-xs font-bold text-slate-950">{rule.name}</h3>
                   </div>
-                  <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold text-slate-600 uppercase">
+                  <span className="rounded bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-600 uppercase">
                     {rule.category}
                   </span>
                 </div>
 
-                <p className="mt-1.5 text-[11px] leading-relaxed text-slate-600">
+                <p className="mt-2 text-[11px] leading-relaxed text-slate-600">
                   {rule.explanation}
                 </p>
 
                 <div className="mt-3 flex items-center justify-between border-t border-slate-200/60 pt-2 text-[11px]">
-                  <span className="font-extrabold text-slate-900">
+                  <span className="font-bold text-slate-900">
                     {rule.suggestedLawCode} · {rule.suggestedArticle}
                   </span>
 
@@ -299,7 +299,7 @@ export function ClauseAuditorDrawer({
                         onQuickSearch(rule.searchQuery);
                         onClose();
                       }}
-                      className="inline-flex items-center gap-1 rounded-lg bg-legal-gold px-2.5 py-1 text-[10px] font-extrabold text-slate-950 transition hover:bg-legal-goldhover active:scale-95 shadow-xs"
+                      className="inline-flex items-center gap-1 rounded-lg bg-legal-gold px-3 py-1 text-[10px] font-bold text-slate-950 transition hover:bg-legal-goldhover active:scale-95 shadow-card"
                     >
                       <span>Fundamentar</span>
                       <ChevronRight size={12} />

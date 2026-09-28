@@ -205,7 +205,7 @@ export function BuscadorLegal() {
             </h1>
 
             <div
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold ${
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-bold ${
                 isOnline
                   ? 'border-emerald-700/60 bg-emerald-950/40 text-emerald-300'
                   : 'border-amber-700/60 bg-amber-950/40 text-amber-200'
@@ -219,7 +219,7 @@ export function BuscadorLegal() {
           {/* Integrated Search Box */}
           <form
             onSubmit={runSearch}
-            className="mt-3.5 rounded-2xl border border-slate-700 bg-slate-900/90 p-3 shadow-xl shadow-black/30"
+            className="mt-4 rounded-2xl border border-slate-700 bg-slate-900/90 p-3 shadow-premium"
           >
             <label htmlFor="legal-query" className="sr-only">
               ¿Qué necesitas fundamentar?
@@ -239,23 +239,23 @@ export function BuscadorLegal() {
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Buscar concepto, supuesto jurídico o artículo (ej. rescisión, art. 47 LFT)..."
                   autoComplete="off"
-                  className="min-h-11 w-full rounded-xl border border-slate-600 bg-slate-950 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-legal-gold focus:outline-none"
+                  className="min-h-11 w-full rounded-xl border border-slate-600 bg-slate-950 py-2 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-legal-gold focus:outline-none"
                 />
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="submit"
                   disabled={isSearching}
-                  className="inline-flex min-h-11 flex-1 sm:flex-initial items-center justify-center gap-2 rounded-xl bg-legal-gold px-5 text-xs font-extrabold text-slate-950 transition hover:bg-legal-goldhover disabled:cursor-wait disabled:opacity-60 cursor-pointer"
+                  className="inline-flex min-h-11 flex-1 sm:flex-initial items-center justify-center gap-2 rounded-xl bg-legal-gold px-5 text-xs font-bold text-slate-950 transition hover:bg-legal-goldhover disabled:cursor-wait disabled:opacity-60 cursor-pointer"
                 >
                   {isSearching ? <LoaderCircle size={16} className="animate-spin" /> : <FileSearch size={16} />} Buscar
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border px-3.5 text-xs font-bold transition cursor-pointer ${
+                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-xs font-bold transition cursor-pointer ${
                     showFilters || activeFiltersCount > 0
-                      ? 'border-legal-gold bg-legal-gold/20 text-legal-gold font-extrabold'
+                      ? 'border-legal-gold bg-legal-gold/20 text-legal-gold font-bold'
                       : 'border-slate-600 bg-slate-800 text-slate-300 hover:bg-slate-700'
                   }`}
                   aria-expanded={showFilters}
@@ -263,7 +263,7 @@ export function BuscadorLegal() {
                   <Filter size={15} />
                   <span>Filtros</span>
                   {activeFiltersCount > 0 && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-legal-gold text-[10px] font-extrabold text-slate-950">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-legal-gold text-[10px] font-bold text-slate-950">
                       {activeFiltersCount}
                     </span>
                   )}
@@ -272,8 +272,8 @@ export function BuscadorLegal() {
             </div>
 
             {/* Quick 1-Touch Scope Pills */}
-            <div className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 shrink-0 mr-1">
+            <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1">
                 Materia:
               </span>
               {scopes.map(([scopeKey, scopeLabel]) => {
@@ -289,9 +289,9 @@ export function BuscadorLegal() {
                         void performSearch(query, scopeKey, undefined);
                       }
                     }}
-                    className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer ${
+                    className={`shrink-0 rounded-lg px-3 py-1 text-xs font-medium transition cursor-pointer ${
                       isActive
-                        ? 'bg-legal-gold text-slate-950 font-extrabold shadow-2xs'
+                        ? 'bg-legal-gold text-slate-950 font-bold shadow-card'
                         : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white'
                     }`}
                   >
@@ -303,7 +303,7 @@ export function BuscadorLegal() {
 
             {/* Collapsible Filters Bar */}
             {showFilters && (
-              <div className="mt-3 grid gap-2.5 border-t border-slate-700/80 pt-3 sm:grid-cols-2">
+              <div className="mt-3 grid gap-2 border-t border-slate-700/80 pt-3 sm:grid-cols-2">
                 <label className="text-xs font-bold text-slate-300">
                   Área Jurídica
                   <select
@@ -312,7 +312,7 @@ export function BuscadorLegal() {
                       setScope(event.target.value as CorpusSearchScope);
                       setLawCode('');
                     }}
-                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-2.5 text-xs text-white focus:border-legal-gold focus:outline-none"
+                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-3 text-xs text-white focus:border-legal-gold focus:outline-none"
                   >
                     {scopes.map(([value, label]) => (
                       <option key={value} value={value}>
@@ -326,7 +326,7 @@ export function BuscadorLegal() {
                   <select
                     value={activeLawCode}
                     onChange={(event) => setLawCode(event.target.value)}
-                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-2.5 text-xs text-white focus:border-legal-gold focus:outline-none"
+                    className="mt-1 min-h-10 w-full rounded-xl border border-slate-600 bg-slate-950 px-3 text-xs text-white focus:border-legal-gold focus:outline-none"
                   >
                     <option value="">Todas las leyes del área</option>
                     {availableLaws.map((law) => (
@@ -341,10 +341,10 @@ export function BuscadorLegal() {
 
             {/* Active Filter Chips */}
             {activeFiltersCount > 0 && (
-              <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-slate-800 pt-2">
+              <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2">
                 <span className="text-[11px] font-bold text-slate-400">Filtros activos:</span>
                 {scope !== 'todos' && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-legal-gold">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-legal-gold">
                     Área: {AREA_LABELS[scope]}
                     <button
                       type="button"
@@ -360,7 +360,7 @@ export function BuscadorLegal() {
                   </span>
                 )}
                 {activeLawCode && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-legal-gold">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-legal-gold">
                     Ley: {activeLawCode}
                     <button
                       type="button"
@@ -383,7 +383,7 @@ export function BuscadorLegal() {
             )}
 
             {error && (
-              <p role="alert" className="mt-2.5 rounded-xl border border-red-800 bg-red-950/50 px-3 py-1.5 text-xs text-red-200">
+              <p role="alert" className="mt-2 rounded-xl border border-red-800 bg-red-950/50 px-3 py-2 text-xs text-red-200">
                 {error}
               </p>
             )}
@@ -396,20 +396,20 @@ export function BuscadorLegal() {
 
         {/* Suggestions — visible when no search performed yet */}
         {!result && !isSearching && (
-          <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-1.5 mb-3">
+          <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
+            <div className="flex items-center gap-2 mb-3">
               <Sparkles size={14} className="text-legal-golddark" />
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 Consultas frecuentes
               </span>
             </div>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {SUGGESTED_LEGAL_SEARCHES.map((item, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => handleSuggestionClick(item.query, item.scope, item.lawCode)}
-                  className="group inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-legal-gold hover:bg-amber-50/60 hover:text-slate-950 transition active:scale-95 cursor-pointer"
+                  className="group inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 hover:border-legal-gold hover:bg-amber-50/60 hover:text-slate-950 transition active:scale-95 cursor-pointer"
                 >
                   <Search size={12} className="text-slate-400 group-hover:text-legal-golddark" />
                   <span>{item.label}</span>
@@ -421,23 +421,23 @@ export function BuscadorLegal() {
 
         {/* Results List */}
         {result && (
-          <div className="space-y-3.5" aria-live="polite">
-            <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-4" aria-live="polite">
+            <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-card sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-extrabold text-slate-950">
+                <p className="text-sm font-bold text-slate-950">
                   {result.articles.length} {result.articles.length === 1 ? 'resultado' : 'resultados'} para "{result.query}"
                 </p>
-                <p className="mt-0.5 text-xs text-slate-500">Área consultada: {result.scopeLabel}</p>
+                <p className="mt-1 text-xs text-slate-500">Área consultada: {result.scopeLabel}</p>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={resetAll}
-                  className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-slate-200 px-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
                 >
                   <RotateCcw size={12} /> Nueva consulta
                 </button>
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-500">
                   <ShieldCheck size={13} className="text-emerald-600" /> SQLite WASM
                 </span>
               </div>
@@ -446,7 +446,7 @@ export function BuscadorLegal() {
             {result.articles.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
                 <FileSearch className="mx-auto text-slate-400" size={32} />
-                <h2 className="mt-2.5 text-sm font-extrabold text-slate-900">No encontramos coincidencias</h2>
+                <h2 className="mt-2 text-sm font-bold text-slate-900">No encontramos coincidencias</h2>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
                   Prueba con menos palabras, elige otra área o consulta todas las leyes y reglamentos.
                 </p>
@@ -460,13 +460,13 @@ export function BuscadorLegal() {
                   return (
                     <article
                       key={article.id}
-                      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs transition hover:border-slate-300"
+                      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card transition hover:border-slate-300"
                     >
                       <div className="p-4 sm:p-5">
-                        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                           <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="rounded-md bg-slate-900 px-2 py-0.5 text-[10px] font-extrabold text-white">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="rounded-md bg-slate-900 px-2 py-0.5 text-[10px] font-bold text-white">
                                 {article.lawCode}
                               </span>
                               <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold ${areaBadge.bg} ${areaBadge.text} ${areaBadge.border}`}>
@@ -479,11 +479,11 @@ export function BuscadorLegal() {
                                 {article.sourceKind}
                               </span>
                             </div>
-                            <h2 className="mt-1.5 font-serif text-sm font-bold leading-5 text-slate-950 sm:text-base">
+                            <h2 className="mt-2 font-serif text-sm font-bold leading-5 text-slate-950 sm:text-base">
                               {article.lawName}
                             </h2>
                             {article.title && (
-                              <p className="mt-0.5 text-xs font-semibold text-slate-500">{article.title}</p>
+                              <p className="mt-1 text-xs font-medium text-slate-500">{article.title}</p>
                             )}
                           </div>
                           <div className="flex shrink-0 items-center gap-1">
@@ -520,12 +520,12 @@ export function BuscadorLegal() {
                           {article.content}
                         </p>
 
-                        <div className="mt-3.5 flex flex-col gap-2 border-t border-slate-100 pt-2.5 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
                           <a
                             href={article.sourceUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex min-h-9 items-center gap-1.5 rounded-xl text-xs font-bold text-blue-700 hover:text-blue-900"
+                            className="inline-flex min-h-9 items-center gap-2 rounded-xl text-xs font-bold text-blue-700 hover:text-blue-900"
                           >
                             <ExternalLink size={14} /> {article.sourceName}
                           </a>
@@ -533,9 +533,9 @@ export function BuscadorLegal() {
                             <button
                               type="button"
                               onClick={() => sendToStudio(article)}
-                              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3.5 text-xs font-extrabold text-white hover:bg-slate-800 cursor-pointer active:scale-95 transition"
+                              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-xs font-bold text-slate-800 hover:bg-slate-50 hover:border-slate-400 cursor-pointer active:scale-95 transition"
                             >
-                              <FilePenLine size={14} className="text-legal-gold" /> Usar en Ingeniería Jurídica
+                              <FilePenLine size={14} className="text-legal-golddark" /> Usar en Ingeniería Jurídica
                             </button>
                             <button
                               type="button"
@@ -547,7 +547,7 @@ export function BuscadorLegal() {
                                   return next;
                                 })
                               }
-                              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl border border-slate-200 px-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
                             >
                               {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                               {isExpanded ? 'Contraer texto' : 'Ver texto completo'}
@@ -562,12 +562,12 @@ export function BuscadorLegal() {
             )}
 
             {/* Desktop Complementary Banner */}
-            <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 p-4 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 p-4 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-card">
               <div className="text-center sm:text-left">
-                <p className="text-xs font-bold text-legal-gold flex items-center justify-center sm:justify-start gap-1.5">
+                <p className="text-xs font-bold text-legal-gold flex items-center justify-center sm:justify-start gap-2">
                   <HardDrive size={15} /> ¿Necesitas auditar o redactar contratos con estos fundamentos?
                 </p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-[11px] text-slate-400 mt-1">
                   Lex Corporativo Desktop incluye auditoría de cláusulas, exportación Word/PDF y expedientes locales con clave propia (BYOK).
                 </p>
               </div>
@@ -579,13 +579,13 @@ export function BuscadorLegal() {
                   window.history.pushState(null, '', url);
                   window.dispatchEvent(new PopStateEvent('popstate'));
                 }}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-legal-gold hover:bg-legal-goldhover text-slate-950 px-3.5 py-1.5 text-xs font-extrabold transition cursor-pointer shrink-0"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-600 bg-slate-800/80 hover:bg-slate-700 text-slate-200 px-4 py-2 text-xs font-bold transition cursor-pointer shrink-0"
               >
                 <span>Ficha Técnica Desktop</span>
               </button>
             </div>
 
-            <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs leading-5 text-slate-600">
+            <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs leading-5 text-slate-600">
               Coteja siempre la vigencia y última reforma en la fuente oficial enlazada antes de emitir opinión legal.
             </p>
           </div>
