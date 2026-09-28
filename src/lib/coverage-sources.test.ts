@@ -2,21 +2,25 @@ import { COVERAGE_SUMMARY, PROCUREMENT_SOURCES, clearRetiredSavedData } from './
 
 describe('coverage sources', () => {
   it('distingue cobertura disponible, parcial y priorizada', () => {
-    const prioritizedTerritories = PROCUREMENT_SOURCES
-      .filter((source) => source.status === 'prioritized')
+    const availableTerritories = PROCUREMENT_SOURCES
+      .filter((source) => source.status === 'available')
       .map((source) => source.territory);
 
-    expect(prioritizedTerritories).toEqual([
+    expect(availableTerritories).toEqual([
+      'México',
       'Nuevo León',
       'Yucatán · Gobierno central',
       'Jalisco',
       'Ciudad de México',
     ]);
-    expect(COVERAGE_SUMMARY).toEqual({ available: 1, partial: 1, prioritized: 4 });
+    expect(COVERAGE_SUMMARY).toEqual({ available: 5, partial: 1, prioritized: 0 });
     expect(
       PROCUREMENT_SOURCES.some(
         (source) => source.territory === 'Yucatán' && source.status === 'partial',
       ),
+    ).toBe(true);
+    expect(
+      PROCUREMENT_SOURCES.every((source) => source.lastVerifiedAt === '2026-09-23'),
     ).toBe(true);
   });
 

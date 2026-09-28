@@ -71,4 +71,12 @@ describe('licitaciones-catalog', () => {
     expect(getLicitacionOfficialSource(yucatan!).nombre).toContain('Poder Judicial de Yucatán');
     expect(getLicitacionOfficialSource(yucatan!).integridad).toBe('publication_only');
   });
+
+  it('integra procedimientos estatales de CDMX, Jalisco, Nuevo León y Yucatán Central', () => {
+    expect(LICITACIONES_DATA.some((l) => l.entidadFederativa === 'Ciudad de México')).toBe(true);
+    expect(LICITACIONES_DATA.some((l) => l.entidadFederativa === 'Jalisco')).toBe(true);
+    expect(LICITACIONES_DATA.some((l) => l.entidadFederativa === 'Nuevo León')).toBe(true);
+    expect(LICITACIONES_DATA.some((l) => l.entidadFederativa === 'Yucatán')).toBe(true);
+    expect(LICITACIONES_DATA.length).toBe(29);
+  });
 });

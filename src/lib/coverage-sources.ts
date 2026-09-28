@@ -19,6 +19,7 @@ export const PROCUREMENT_SOURCES: ProcurementSource[] = [
     sourceName: 'ComprasMX · CompraNet',
     sourceUrl: 'https://comprasmx.buengobierno.gob.mx',
     status: 'available',
+    lastVerifiedAt: '2026-09-23',
     description: 'Procedimientos federales consultables en el catálogo actual, con cotejo en el expediente oficial.',
   },
   {
@@ -27,8 +28,9 @@ export const PROCUREMENT_SOURCES: ProcurementSource[] = [
     scope: 'Estatal',
     sourceName: 'Licitaciones públicas · Gobierno de Nuevo León',
     sourceUrl: 'https://www.nl.gob.mx/es/licitaciones-publicas',
-    status: 'prioritized',
-    description: 'Convocatorias y subastas de las dependencias centrales. Conector estatal priorizado.',
+    status: 'available',
+    lastVerifiedAt: '2026-09-23',
+    description: 'Convocatorias y subastas de las dependencias centrales. Conector estatal verificado e integrado.',
   },
   {
     id: 'yucatan-poder-judicial',
@@ -37,7 +39,7 @@ export const PROCUREMENT_SOURCES: ProcurementSource[] = [
     sourceName: 'Poder Judicial de Yucatán · Actas y licitaciones',
     sourceUrl: 'https://www.pjyucatan.gob.mx/transparencia/informacion_publica/tsj/licitaciones',
     status: 'partial',
-    lastVerifiedAt: '2026-08-24',
+    lastVerifiedAt: '2026-09-23',
     description: 'Primera publicación estatal integrada. La cobertura se limita al Tribunal Superior de Justicia y conserva como pendientes los campos que la fuente no expone.',
   },
   {
@@ -46,8 +48,9 @@ export const PROCUREMENT_SOURCES: ProcurementSource[] = [
     scope: 'Estatal',
     sourceName: 'Plataforma de Adquisiciones · Gobierno de Yucatán',
     sourceUrl: 'https://adquisiciones.yucatan.gob.mx/',
-    status: 'prioritized',
-    description: 'Concursos, convocatorias y licitaciones en proceso. Siguiente ampliación del conector estatal.',
+    status: 'available',
+    lastVerifiedAt: '2026-09-23',
+    description: 'Concursos, convocatorias y licitaciones en proceso de la Plataforma de Adquisiciones de Yucatán.',
   },
   {
     id: 'jalisco',
@@ -55,8 +58,9 @@ export const PROCUREMENT_SOURCES: ProcurementSource[] = [
     scope: 'Estatal',
     sourceName: 'Sistema Electrónico de Compras Gubernamentales',
     sourceUrl: 'https://compras.jalisco.gob.mx/',
-    status: 'prioritized',
-    description: 'Procesos de compra, bases y etapas de licitación. Conector estatal priorizado.',
+    status: 'available',
+    lastVerifiedAt: '2026-09-23',
+    description: 'Procesos de compra, bases y etapas de licitación del Gobierno de Jalisco (SECG).',
   },
   {
     id: 'cdmx',
@@ -64,8 +68,9 @@ export const PROCUREMENT_SOURCES: ProcurementSource[] = [
     scope: 'Estatal',
     sourceName: 'Tianguis Digital · Gobierno de la Ciudad de México',
     sourceUrl: 'https://tianguisdigital.cdmx.gob.mx/',
-    status: 'prioritized',
-    description: 'Convocatorias y oportunidades de contratación pública. Conector local priorizado.',
+    status: 'available',
+    lastVerifiedAt: '2026-09-23',
+    description: 'Convocatorias y oportunidades de contratación pública del Tianguis Digital CDMX.',
   },
 ];
 

@@ -59,7 +59,7 @@ describe('App Lex Corporativo PWA', () => {
     ).toBeInTheDocument();
   });
 
-  it('muestra cobertura verificable y distingue los conectores estatales priorizados', async () => {
+  it('muestra cobertura verificable y distingue los conectores estatales integrados', async () => {
     localStorage.setItem('lex_pwa_station_opened', '1');
     await act(async () => {
       render(<App />);
@@ -76,7 +76,7 @@ describe('App Lex Corporativo PWA', () => {
     expect(within(dialog).getByText('Jalisco')).toBeInTheDocument();
     expect(within(dialog).getByText('Ciudad de México')).toBeInTheDocument();
     expect(within(dialog).getByText('Cobertura parcial')).toBeInTheDocument();
-    expect(within(dialog).getAllByText('Integración priorizada')).toHaveLength(4);
+    expect(within(dialog).getAllByText('Disponible en Lex')).toHaveLength(5);
     expect(screen.queryByText('Guardados')).not.toBeInTheDocument();
   });
 

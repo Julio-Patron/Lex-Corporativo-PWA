@@ -1,4 +1,4 @@
-name: Radar CompraNet Sync
+name: Radar Licitaciones Multi-Fuente Sync
 
 on:
   schedule:
@@ -12,9 +12,9 @@ on:
         default: false
         type: boolean
       create_pr:
-        description: 'Abrir un Pull Request en lugar de hacer commit directo a desarrollo'
+        description: 'Abrir un Pull Request hacia master en lugar de hacer commit directo'
         required: false
-        default: false
+        default: true
         type: boolean
 
 permissions:
@@ -26,13 +26,13 @@ env:
 
 jobs:
   sync:
-    name: Sincronizar CompraNet y Radar
+    name: Sincronizar Licitaciones Federales y Estatales
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repositorio
         uses: actions/checkout@v4
         with:
-          ref: desarrollo
+          ref: master
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -44,12 +44,12 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      - name: Ejecutar sincronización de CompraNet
+      - name: Ejecutar sincronización multi-fuente de licitaciones
         run: |
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            npm run sync:licitaciones:check
+            npm run sync:all:check
           else
-            npm run sync:licitaciones
+            npm run sync:all
           fi
 
       - name: Validar tipado y pruebas unitarias
@@ -57,15 +57,15 @@ jobs:
           npx tsc -b --noEmit
           npm run test:run
 
-      - name: Evaluar cambios en el dataset
+      - name: Evaluar cambios en los datasets
         id: git_diff
         run: |
-          if git diff --quiet src/data/federal-licitaciones.json; then
+          if git diff --quiet src/data/*-licitaciones.json; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "Sin cambios detectados en el dataset de licitaciones."
+            echo "Sin cambios detectados en los datasets de licitaciones."
           else
             echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "Se detectaron cambios en el dataset de licitaciones."
+            echo "Se detectaron cambios en los datasets de licitaciones."
           fi
 
       - name: Guardar cambios y sincronizar
@@ -76,19 +76,26 @@ jobs:
           TODAY=$(date +'%Y-%m-%d')
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/data/federal-licitaciones.json
+          git add src/data/*-licitaciones.json
 
-          if [ "${{ github.event.inputs.create_pr }}" = "true" ]; then
+          IS_SCHEDULE="${{ github.event_name == 'schedule' }}"
+          CREATE_PR="${{ github.event.inputs.create_pr }}"
+
+          if [ "$IS_SCHEDULE" = "true" ] || [ "$CREATE_PR" != "false" ]; then
             BRANCH_NAME="radar-sync-${TODAY}"
             git checkout -b "$BRANCH_NAME"
-            git commit -m "chore(radar): actualización automática CompraNet [${TODAY}]"
+            git commit -m "chore(radar): sincronización automática multi-fuente [${TODAY}]"
             git push origin "$BRANCH_NAME" --force
-            gh pr create \
-              --base desarrollo \
-              --head "$BRANCH_NAME" \
-              --title "chore(radar): sincronización automática CompraNet [${TODAY}]" \
-              --body "Actualización automática periódica del feed de licitaciones públicas de CompraNet y ciclo de vida de procedimientos en el Radar de Lex Corporativo."
+            if gh pr view "$BRANCH_NAME" > /dev/null 2>&1; then
+              echo "Pull request para $BRANCH_NAME ya existe. Rama actualizada."
+            else
+              gh pr create \
+                --base master \
+                --head "$BRANCH_NAME" \
+                --title "chore(radar): sincronización automática multi-fuente [${TODAY}]" \
+                --body "Actualización automática periódica del feed de licitaciones públicas federales y estatales (CompraNet, CDMX, Jalisco, Nuevo León, Yucatán) y ciclo de vida de procedimientos en el Radar de Lex Corporativo hacia producción (master)."
+            fi
           else
-            git commit -m "chore(radar): actualización automática CompraNet [${TODAY}]"
-            git push origin desarrollo
+            git commit -m "chore(radar): sincronización automática multi-fuente [${TODAY}]"
+            git push origin master
           fi

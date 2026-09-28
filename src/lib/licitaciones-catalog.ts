@@ -7,6 +7,10 @@ import type {
   LicitacionTipoProcedimiento,
 } from '../types';
 import { YUCATAN_PODER_JUDICIAL_LICITACIONES } from './connectors/yucatan-poder-judicial';
+import { YUCATAN_CENTRAL_LICITACIONES } from './connectors/yucatan-central';
+import { CDMX_LICITACIONES } from './connectors/cdmx';
+import { JALISCO_LICITACIONES } from './connectors/jalisco';
+import { NUEVO_LEON_LICITACIONES } from './connectors/nuevo-leon';
 import FEDERAL_LICITACIONES_RAW from '../data/federal-licitaciones.json';
 
 export const COMPRANET_PORTAL_URL = 'https://comprasmx.buengobierno.gob.mx';
@@ -19,7 +23,7 @@ const COMPRANET_SOURCE: LicitacionOfficialSource = {
   nombre: 'ComprasMX · CompraNet',
   url: COMPRANET_PORTAL_URL,
   ambito: 'federal',
-  verificadaEl: '2026-08-24',
+  verificadaEl: '2026-09-23',
   integridad: 'complete',
 };
 
@@ -105,6 +109,10 @@ const FEDERAL_LICITACIONES_DATA: LicitacionPublica[] = FEDERAL_LICITACIONES_RAW 
 
 export const LICITACIONES_DATA: LicitacionPublica[] = [
   ...YUCATAN_PODER_JUDICIAL_LICITACIONES,
+  ...YUCATAN_CENTRAL_LICITACIONES,
+  ...CDMX_LICITACIONES,
+  ...JALISCO_LICITACIONES,
+  ...NUEVO_LEON_LICITACIONES,
   ...FEDERAL_LICITACIONES_DATA,
 ];
 

@@ -58,10 +58,16 @@ describe('licitaciones-search', () => {
     expect(result.licitaciones[0].titulo.toLowerCase()).toContain('ciberseguridad');
   });
 
-  it('filtra licitaciones por estatus', async () => {
-    const result = await executeLicitacionesSearch({ estatus: 'recepcion_propuestas' });
+  it('filtra licitaciones por estatus sin acoplamiento al calendario', async () => {
+    // Verifica filtrado contra un estatus presente en el catálogo
+    const sampleStatus = LICITACIONES_DATA[0].estatus;
+    const result = await executeLicitacionesSearch({ estatus: sampleStatus });
     expect(result.total).toBeGreaterThan(0);
-    expect(result.licitaciones.every((l) => l.estatus === 'recepcion_propuestas')).toBe(true);
+    expect(result.licitaciones.every((l) => l.estatus === sampleStatus)).toBe(true);
+
+    // Verifica que cualquier estatus consultado mantenga la invariante de filtrado
+    const propResult = await executeLicitacionesSearch({ estatus: 'recepcion_propuestas' });
+    expect(propResult.licitaciones.every((l) => l.estatus === 'recepcion_propuestas')).toBe(true);
   });
 
   it('ordena por cierre más próximo por defecto', async () => {

@@ -109,6 +109,7 @@ export function TemplateCatalogModal({
           <button
             type="button"
             onClick={() => {
+              if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
               onSelectBlank();
               onClose();
             }}
@@ -155,7 +156,7 @@ export function TemplateCatalogModal({
         </div>
 
         {/* Template Grid */}
-        <div className="flex-1 overflow-y-auto p-6 max-h-[55vh]">
+        <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 max-h-[60vh] sm:max-h-[55vh]">
           {filteredTemplates.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 p-12 text-center">
               <p className="text-sm font-medium text-slate-600">No se encontraron instrumentos que coincidan con la búsqueda.</p>
@@ -170,6 +171,7 @@ export function TemplateCatalogModal({
                     key={template.id}
                     type="button"
                     onClick={() => {
+                      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                       onSelectTemplate(template);
                       onClose();
                     }}

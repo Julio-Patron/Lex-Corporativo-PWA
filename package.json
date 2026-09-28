@@ -13,6 +13,8 @@
     "validate:corpus": "node scripts/validate-corpus.mjs",
     "sync:licitaciones": "node scripts/sync-compranet.mjs",
     "sync:licitaciones:check": "node scripts/sync-compranet.mjs --dry-run",
+    "sync:all": "node scripts/sync-all.mjs",
+    "sync:all:check": "node scripts/sync-all.mjs --dry-run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test"
   },

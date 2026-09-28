@@ -1,0 +1,87 @@
+[
+  {
+    "id": "jal-ssj-opd-2026-19",
+    "numeroProcedimiento": "LPN-SSJ-OPD-019-2026",
+    "expediente": "EXP-SSJ-HOSP-2026-551",
+    "titulo": "Servicio de limpieza hospitalaria, sanitización y manejo de residuos peligrosos biológico-infecciosos (RPBI)",
+    "descripcion": "Servicio integral de desinfección de quirófanos, áreas críticas de terapia intensiva, hospitalización y recolección certificada de RPBI en 36 unidades hospitalarias del OPD Servicios de Salud Jalisco.",
+    "convocante": "Organismo Público Descentralizado Servicios de Salud Jalisco",
+    "siglasConvocante": "SSJ Jalisco",
+    "unidadCompradora": "Dirección de Recursos Materiales · Servicios de Salud Jalisco",
+    "materia": "servicios",
+    "caracter": "nacional",
+    "tipoProcedimiento": "licitacion_publica",
+    "estatus": "recepcion_propuestas",
+    "entidadFederativa": "Jalisco",
+    "fechaPublicacion": "2026-09-15",
+    "fechaJuntaAclaraciones": "2026-09-25",
+    "fechaLimitePropuestas": "2026-10-22T11:00:00",
+    "fechaFallo": "2026-11-06",
+    "montoEstimado": 89000000,
+    "moneda": "MXN",
+    "marcoLegal": "Ley de Compras Gubernamentales, Enajenaciones y Contratación de Servicios del Estado de Jalisco y NOM-087-SEMARNAT-SSA1-2002",
+    "enlaceCompraNet": "https://compras.jalisco.gob.mx/",
+    "fuenteOficial": {
+      "id": "jalisco",
+      "nombre": "Sistema Electrónico de Compras Gubernamentales",
+      "url": "https://compras.jalisco.gob.mx/",
+      "ambito": "estatal",
+      "verificadaEl": "2026-09-25",
+      "integridad": "complete"
+    },
+    "requisitosClave": [
+      "Permiso SEMARNAT y SCT para transporte de RPBI",
+      "Certificación del personal en bioseguridad hospitalaria",
+      "Padrón de Proveedores del Estado de Jalisco activo (SECG)",
+      "Constancia fiscal positiva 32-D SAT"
+    ],
+    "anexosDisponibles": [
+      "Bases Estatales SECG",
+      "Catálogo de Hospitales y Metros Cuadrados",
+      "Protocolos de Desinfección Hospitalaria"
+    ]
+  },
+  {
+    "id": "jal-siop-2026-07",
+    "numeroProcedimiento": "SIOP-E-ICAR-OB-LP-007-2026",
+    "expediente": "EXP-SIOP-JAL-2026-104",
+    "titulo": "Conservación periódica, bacheo profundo y reencarpetamiento con concreto asfáltico en la Red Carretera Estatal Región Valles",
+    "descripcion": "Rehabilitación de 78 km de tramos carreteros estatales en los municipios de Ameca, Tala y San Martín Hidalgo, incluyendo cunetas, señalización horizontal y defensas metálicas.",
+    "convocante": "Gobierno de Jalisco / Secretaría de Infraestructura y Obra Pública (SIOP)",
+    "siglasConvocante": "SIOP Jalisco",
+    "unidadCompradora": "Dirección General de Obras Camineras",
+    "materia": "obra_publica",
+    "caracter": "nacional",
+    "tipoProcedimiento": "licitacion_publica",
+    "estatus": "junta_aclaraciones",
+    "entidadFederativa": "Jalisco",
+    "fechaPublicacion": "2026-09-17",
+    "fechaVisitaSitio": "2026-09-27",
+    "fechaJuntaAclaraciones": "2026-10-03",
+    "fechaLimitePropuestas": "2026-10-25T12:00:00",
+    "fechaFallo": "2026-11-10",
+    "montoEstimado": 145000000,
+    "moneda": "MXN",
+    "marcoLegal": "Ley de Obra Pública para el Estado de Jalisco y sus Municipios",
+    "enlaceCompraNet": "https://compras.jalisco.gob.mx/",
+    "fuenteOficial": {
+      "id": "jalisco",
+      "nombre": "Sistema Electrónico de Compras Gubernamentales",
+      "url": "https://compras.jalisco.gob.mx/",
+      "ambito": "estatal",
+      "verificadaEl": "2026-09-25",
+      "integridad": "complete"
+    },
+    "requisitosClave": [
+      "Registro en el Padrón Único de Contratistas de Jalisco",
+      "Constancia de visita al sitio de los trabajos",
+      "Equipo mínimo indispensable de tendido y compactación de asfalto",
+      "Fianza de cumplimiento del 10%"
+    ],
+    "anexosDisponibles": [
+      "Bases y Pliego de Requisitos",
+      "Catálogo de Conceptos y Precios Unitarios",
+      "Tramos y Planos de Señalización"
+    ]
+  }
+]
