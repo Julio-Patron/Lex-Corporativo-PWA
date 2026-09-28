@@ -19,8 +19,8 @@ interface MobileEditorToolbarProps {
   onOpenVariables?: () => void;
   hasVariables?: boolean;
   variableCount?: number;
-  wordCount: number;
-  readingMinutes: number;
+  wordCount?: number;
+  readingMinutes?: number;
 }
 
 export function MobileEditorToolbar({
@@ -30,8 +30,6 @@ export function MobileEditorToolbar({
   onOpenVariables,
   hasVariables,
   variableCount = 0,
-  wordCount,
-  readingMinutes,
 }: MobileEditorToolbarProps) {
   if (!editor) return null;
 

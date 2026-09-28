@@ -1060,8 +1060,6 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
         hasVariables={Boolean(selectedTemplate && selectedTemplate.fields.length > 0)}
         variableCount={selectedTemplate?.fields.length ?? 0}
         onOpenVariables={openVariables}
-        wordCount={wordCount}
-        readingMinutes={readingMinutes}
       />
 
       {/* Opción A & C: Assistant Drawer for Foundation Search & Insertion */}
