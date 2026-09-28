@@ -11,6 +11,7 @@ import {
   FilePenLine,
   FileText,
   FolderOpen,
+  Home,
   Italic,
   List,
   LoaderCircle,
@@ -26,7 +27,6 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import logoMark from '../assets/logo-mark.png';
 import { loadTemplateRegistry } from '../lib/template-registry';
 import { createStudioDocument as createDocument, getStudioSession, isUntouchedStudioDocument, type StudioSession } from '../lib/studio-session';
 import { documentExportText } from '../lib/document-export-content';
@@ -67,9 +67,10 @@ export interface DraftingStudioProps {
   onNavigateToDesktop?: () => void;
   registerBeforeLeave?: (guard: (() => Promise<boolean>) | null) => void;
   session?: StudioSession;
+  onGoHome?: () => void;
 }
 
-export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, session = getStudioSession() }: DraftingStudioProps = {}) {
+export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoHome, session = getStudioSession() }: DraftingStudioProps = {}) {
   const { notify } = useUiStore();
   const fileInput = useRef<HTMLInputElement>(null);
   const exportDetailsRef = useRef<HTMLDetailsElement>(null);
@@ -426,16 +427,29 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
   return (
     <div className="flex min-h-[calc(100vh-64px)] flex-col bg-slate-100/70 text-slate-950">
       {/* Top Main Navigation Bar */}
-      <section className="sticky top-0 z-40 border-b border-slate-200/90 bg-white shadow-card">
-        <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-2 px-3 py-2 sm:gap-3 sm:px-6 sm:py-2 lg:flex-row lg:items-center lg:justify-between">
+      {/* Top Main Navigation Bar - Franja azul al mismo nivel de Ingeniería Jurídica */}
+      <section className="sticky top-0 z-40 border-b border-slate-800 bg-legal-shell text-white shadow-premium">
+        <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-2 px-3 py-2 sm:gap-3 sm:px-6 sm:py-2.5 lg:flex-row lg:items-center lg:justify-between">
           {/* Title and Module Brand */}
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-900 text-legal-gold shadow-card shrink-0">
-              <FilePenLine size={18} className="sm:w-5 sm:h-5" />
-            </span>
+            {onGoHome ? (
+              <button
+                type="button"
+                onClick={onGoHome}
+                className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-900 border border-legal-gold/40 text-legal-gold hover:bg-slate-800 hover:text-white shadow-card shrink-0 active:scale-95 transition cursor-pointer"
+                title="Volver a Inicio"
+                aria-label="Volver a Inicio"
+              >
+                <Home size={18} className="sm:w-5 sm:h-5" />
+              </button>
+            ) : (
+              <span className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-900 border border-legal-gold/40 text-legal-gold shadow-card shrink-0">
+                <FilePenLine size={18} className="sm:w-5 sm:h-5" />
+              </span>
+            )}
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-serif text-base font-bold tracking-tight text-slate-950 sm:text-lg">
+                <h1 className="font-serif text-base font-bold tracking-tight text-white sm:text-lg">
                   Ingeniería Jurídica
                 </h1>
                 <span
@@ -445,18 +459,18 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                   data-status={saveState}
                   className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium transition-colors ${
                     saveState === 'error'
-                      ? 'border border-red-200 bg-red-50 text-red-700'
+                      ? 'border border-red-500/40 bg-red-950/60 text-red-300'
                       : saveState === 'saving' || saveState === 'loading'
-                      ? 'border border-amber-200 bg-amber-50 text-amber-800'
-                      : 'border border-slate-200 bg-slate-50 text-slate-600'
+                      ? 'border border-amber-500/40 bg-amber-950/60 text-amber-300'
+                      : 'border border-slate-700 bg-slate-800/80 text-slate-300'
                   }`}
                 >
                   {saveState === 'saving' || saveState === 'loading' ? (
-                    <LoaderCircle size={11} className="animate-spin text-legal-golddark" />
+                    <LoaderCircle size={11} className="animate-spin text-legal-gold" />
                   ) : saveState === 'error' ? (
                     <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                   ) : (
-                    <CheckCircle2 size={11} className="text-emerald-600" />
+                    <CheckCircle2 size={11} className="text-emerald-400" />
                   )}
                   <span className="hidden sm:inline">
                     {{ loading: 'Recuperando…', empty: 'Sin cambios', pending: 'Cambios pendientes', saving: 'Guardando…', saved: 'Guardado en este dispositivo', error: 'Requiere atención' }[saveState]}
@@ -466,7 +480,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                   </span>
                 </span>
               </div>
-              <p className="hidden sm:block text-[11px] text-slate-500">
+              <p className="hidden sm:block text-[11px] text-slate-400">
                 Redacción documental estructurada y aplicación de variables jurídicas
               </p>
             </div>
@@ -483,10 +497,10 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                   if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                   setShowCatalogModal(true);
                 }}
-                className="studio-action gap-1 font-bold text-slate-800 hover:border-legal-gold cursor-pointer inline-flex"
+                className="studio-action !border-legal-gold/40 !bg-legal-gold/15 !text-legal-gold hover:!bg-legal-gold hover:!text-slate-950 gap-1 font-bold cursor-pointer inline-flex transition shadow-card active:scale-95"
                 title="Iniciar nuevo documento desde el catálogo de instrumentos"
               >
-                <Plus size={14} className="text-legal-golddark" />
+                <Plus size={14} />
                 <span>Nuevo</span>
               </button>
 
@@ -496,7 +510,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                   if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                   setShowCatalogModal(true);
                 }}
-                className="studio-primary gap-1 sm:gap-2"
+                className="studio-primary gap-1 sm:gap-2 active:scale-95 transition"
                 title="Abrir catálogo de plantillas e instrumentos"
               >
                 <BookOpen size={14} />
@@ -514,31 +528,31 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
                     openVariables();
                   }}
-                  className="studio-action text-slate-800 hover:border-legal-gold gap-1.5 shrink-0"
+                  className="studio-action !border-amber-500/40 !bg-amber-500/15 !text-amber-300 hover:!bg-amber-500/25 gap-1.5 shrink-0 active:scale-95 transition"
                   title="Configurar variables de la plantilla activa"
                 >
-                  <SlidersHorizontal size={13} className="text-legal-golddark" />
+                  <SlidersHorizontal size={13} className="text-amber-400" />
                   <span>Variables</span>
-                  <span className="rounded-full bg-slate-100 border border-slate-200 px-1.5 py-0.5 text-[9px] font-bold text-slate-700">
+                  <span className="rounded-full bg-amber-400/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-200">
                     {selectedTemplate.fields.length}
                   </span>
                 </button>
               )}
 
-              <span className="h-5 w-px bg-slate-200 hidden sm:block shrink-0" aria-hidden="true" />
+              <span className="h-5 w-px bg-slate-800 hidden sm:block shrink-0" aria-hidden="true" />
 
               {/* Document Management Group */}
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowDraftsModal(true)}
-                  className="studio-action gap-1.5"
+                  className="studio-action !border-slate-700 !bg-slate-800/80 !text-slate-300 hover:!bg-slate-700 hover:!text-white gap-1.5 active:scale-95 transition"
                   title="Ver borradores locales"
                 >
-                  <FolderOpen size={14} className="text-slate-500" />
+                  <FolderOpen size={14} className="text-slate-400" />
                   <span className="hidden sm:inline">Borradores</span>
                   {documents.length > 0 && (
-                    <span className="rounded-full bg-slate-100 border border-slate-200 px-1.5 py-0.5 text-[9px] font-bold text-slate-600">
+                    <span className="rounded-full bg-slate-700 px-1.5 py-0.5 text-[9px] font-bold text-slate-300">
                       {documents.length}
                     </span>
                   )}
@@ -554,38 +568,38 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                 <button
                   type="button"
                   onClick={() => fileInput.current?.click()}
-                  className="studio-action hidden sm:inline-flex gap-1.5"
+                  className="studio-action !border-slate-700 !bg-slate-800/80 !text-slate-300 hover:!bg-slate-700 hover:!text-white hidden sm:inline-flex gap-1.5 active:scale-95 transition"
                   title="Importar DOCX, PDF o TXT"
                 >
-                  <Upload size={14} className="text-slate-500" />
+                  <Upload size={14} className="text-slate-400" />
                   <span className="hidden md:inline">Importar</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={shareDocument}
-                  className="studio-action inline-flex gap-1.5"
+                  className="studio-action !border-slate-700 !bg-slate-800/80 !text-slate-300 hover:!bg-slate-700 hover:!text-white inline-flex gap-1.5 active:scale-95 transition"
                   title="Compartir documento o copiar texto"
                   aria-label="Compartir documento"
                 >
-                  <Share2 size={14} className="text-slate-500" />
+                  <Share2 size={14} className="text-slate-400" />
                   <span className="hidden sm:inline">Compartir</span>
                 </button>
               </div>
 
-              <span className="h-5 w-px bg-slate-200 hidden md:block shrink-0" aria-hidden="true" />
+              <span className="h-5 w-px bg-slate-800 hidden md:block shrink-0" aria-hidden="true" />
 
               {/* Desktop Tools */}
               <div className="hidden md:flex items-center gap-1 shrink-0">
                 <button
                   type="button"
                   onClick={() => setLockedFeatureModal('auditar')}
-                  className="studio-action text-slate-600 hover:text-slate-900 border-slate-200 gap-1.5"
+                  className="studio-action !border-slate-800 !bg-slate-900/60 hover:!border-slate-700 !text-slate-400 hover:!text-slate-200 gap-1.5 active:scale-95 transition"
                   title="Auditoría Contractual (Exclusivo de Lex Corporativo Desktop)"
                 >
-                  <Lock size={12} className="text-slate-400" />
+                  <Lock size={12} className="text-slate-500" />
                   <span>Auditar</span>
-                  <span className="rounded bg-slate-100 px-1 py-0.5 text-[8px] font-mono font-medium text-slate-500">
+                  <span className="rounded bg-slate-800 px-1 py-0.5 text-[8px] font-mono font-medium text-slate-400">
                     EXE
                   </span>
                 </button>
@@ -593,12 +607,12 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                 <button
                   type="button"
                   onClick={() => setLockedFeatureModal('fundamentar')}
-                  className="studio-action text-slate-600 hover:text-slate-900 border-slate-200 gap-1.5"
+                  className="studio-action !border-slate-800 !bg-slate-900/60 hover:!border-slate-700 !text-slate-400 hover:!text-slate-200 gap-1.5 active:scale-95 transition"
                   title="Fundamentación y Citas (Exclusivo de Lex Corporativo Desktop)"
                 >
-                  <Lock size={12} className="text-slate-400" />
+                  <Lock size={12} className="text-slate-500" />
                   <span>Fundamentar</span>
-                  <span className="rounded bg-slate-100 px-1 py-0.5 text-[8px] font-mono font-medium text-slate-500">
+                  <span className="rounded bg-slate-800 px-1 py-0.5 text-[8px] font-mono font-medium text-slate-400">
                     EXE
                   </span>
                 </button>
@@ -606,19 +620,19 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
 
               {/* Export Menu */}
               <details ref={exportDetailsRef} className="relative shrink-0">
-                <summary className="studio-action cursor-pointer list-none gap-1.5 border-slate-300 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-400 shadow-card">
-                  <Download size={14} className="text-slate-600" />
+                <summary className="studio-action !border-slate-700 !bg-slate-800/90 !text-slate-200 hover:!bg-slate-700 hover:!text-white cursor-pointer list-none gap-1.5 shadow-card active:scale-95 transition">
+                  <Download size={14} className="text-slate-400" />
                   <span>Exportar</span>
                   <ChevronDown size={12} className="text-slate-400" />
                 </summary>
-                <div className="absolute right-0 z-50 mt-2 w-52 rounded-xl border border-slate-200 bg-white p-1.5 shadow-dialog">
-                  <button type="button" onClick={exportDocx} className="studio-menu-item">
+                <div className="absolute right-0 z-50 mt-2 w-52 rounded-xl border border-slate-700 bg-slate-900 p-1.5 shadow-dialog text-white">
+                  <button type="button" onClick={exportDocx} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 hover:text-white transition">
                     Copia Word (.docx)
                   </button>
-                  <button type="button" onClick={exportPdf} className="studio-menu-item">
+                  <button type="button" onClick={exportPdf} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 hover:text-white transition">
                     Copia PDF Membretada
                   </button>
-                  <button type="button" onClick={exportTxt} className="studio-menu-item">
+                  <button type="button" onClick={exportTxt} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 hover:text-white transition">
                     Texto plano (.txt)
                   </button>
                 </div>
@@ -647,7 +661,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                 <button
                   type="button"
                   onClick={shareDocument}
-                  className="studio-action p-2 min-h-8 min-w-8 text-slate-700 active:scale-95"
+                  className="studio-action !border-slate-700 !bg-slate-800 !text-slate-300 hover:!text-white p-2 min-h-8 min-w-8 active:scale-95"
                   title="Compartir documento"
                   aria-label="Compartir documento"
                 >
@@ -657,20 +671,20 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                 <details ref={mobileExportDetailsRef} className="relative shrink-0">
                   <summary
                     role="button"
-                    className="studio-action cursor-pointer list-none p-1.5 min-h-8 min-w-8 text-slate-700 active:scale-95 rounded-xl border border-slate-200 bg-white flex items-center justify-center"
+                    className="studio-action !border-slate-700 !bg-slate-800 !text-slate-300 hover:!text-white cursor-pointer list-none p-1.5 min-h-8 min-w-8 active:scale-95 rounded-xl flex items-center justify-center"
                     aria-label="Exportar"
                     title="Exportar documento"
                   >
                     <Download size={15} />
                   </summary>
-                  <div className="absolute right-0 z-50 mt-2 w-48 rounded-xl border border-slate-200 bg-white p-1.5 shadow-dialog text-xs">
-                    <button type="button" onClick={exportDocx} className="studio-menu-item">
+                  <div className="absolute right-0 z-50 mt-2 w-48 rounded-xl border border-slate-700 bg-slate-900 p-1.5 shadow-dialog text-xs text-white">
+                    <button type="button" onClick={exportDocx} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 hover:text-white transition">
                       Copia Word (.docx)
                     </button>
-                    <button type="button" onClick={exportPdf} className="studio-menu-item">
+                    <button type="button" onClick={exportPdf} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 hover:text-white transition">
                       Copia PDF Membretada
                     </button>
-                    <button type="button" onClick={exportTxt} className="studio-menu-item">
+                    <button type="button" onClick={exportTxt} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 hover:text-white transition">
                       Texto plano (.txt)
                     </button>
                   </div>
@@ -680,27 +694,27 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                 <details ref={mobileMenuRef} className="relative shrink-0">
                   <summary
                     role="button"
-                    className="studio-action cursor-pointer list-none p-1.5 min-h-8 min-w-8 text-slate-700 active:scale-95 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center"
+                    className="studio-action !border-slate-700 !bg-slate-800 !text-slate-300 hover:!text-white cursor-pointer list-none p-1.5 min-h-8 min-w-8 active:scale-95 rounded-xl flex items-center justify-center"
                     aria-label="Más opciones"
                     title="Más opciones del estudio"
                   >
                     <MoreVertical size={16} />
                   </summary>
-                  <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-dialog text-xs">
+                  <div className="absolute right-0 z-50 mt-2 w-56 rounded-xl border border-slate-700 bg-slate-900 p-1.5 shadow-dialog text-xs text-white">
                     <button
                       type="button"
                       onClick={() => {
                         mobileMenuRef.current?.removeAttribute('open');
                         setShowDraftsModal(true);
                       }}
-                      className="studio-menu-item flex items-center justify-between"
+                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 hover:text-white transition"
                     >
                       <span className="flex items-center gap-2">
-                        <FolderOpen size={14} className="text-slate-500" />
+                        <FolderOpen size={14} className="text-slate-400" />
                         <span>Borradores locales</span>
                       </span>
                       {documents.length > 0 && (
-                        <span className="rounded-full bg-slate-100 px-1.5 py-0.2 text-[9px] font-bold text-slate-600">
+                        <span className="rounded-full bg-slate-800 px-1.5 py-0.2 text-[9px] font-bold text-slate-400">
                           {documents.length}
                         </span>
                       )}
@@ -712,9 +726,9 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                         mobileMenuRef.current?.removeAttribute('open');
                         fileInput.current?.click();
                       }}
-                      className="studio-menu-item flex items-center gap-2"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 hover:text-white transition"
                     >
-                      <Upload size={14} className="text-slate-500" />
+                      <Upload size={14} className="text-slate-400" />
                       <span>Importar archivo</span>
                     </button>
 
@@ -724,7 +738,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                         mobileMenuRef.current?.removeAttribute('open');
                         setShowCatalogModal(true);
                       }}
-                      className="studio-menu-item flex items-center gap-2"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-legal-gold hover:bg-slate-800 transition font-bold"
                     >
                       <Plus size={14} className="text-legal-gold" />
                       <span>Nuevo instrumento</span>
@@ -737,19 +751,19 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                           mobileMenuRef.current?.removeAttribute('open');
                           openVariables();
                         }}
-                        className="studio-menu-item flex items-center justify-between text-amber-900 font-bold"
+                        className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs text-amber-300 hover:bg-slate-800 transition font-bold"
                       >
                         <span className="flex items-center gap-2">
-                          <SlidersHorizontal size={14} className="text-amber-600" />
+                          <SlidersHorizontal size={14} className="text-amber-400" />
                           <span>Variables</span>
                         </span>
-                        <span className="rounded-full bg-amber-200/80 px-1.5 py-0.2 text-[9px] font-black text-amber-900">
+                        <span className="rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[9px] font-black text-amber-300">
                           {selectedTemplate.fields.length}
                         </span>
                       </button>
                     )}
 
-                    <div className="my-1 border-t border-slate-100" />
+                    <div className="my-1 border-t border-slate-800" />
 
                     <button
                       type="button"
@@ -757,13 +771,13 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                         mobileMenuRef.current?.removeAttribute('open');
                         setLockedFeatureModal('auditar');
                       }}
-                      className="studio-menu-item flex items-center justify-between"
+                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs text-slate-300 hover:bg-slate-800 transition"
                     >
                       <span className="flex items-center gap-2">
-                        <Lock size={13} className="text-amber-500" />
+                        <Lock size={13} className="text-slate-400" />
                         <span>Auditoría legal</span>
                       </span>
-                      <span className="rounded bg-amber-100 px-1.5 py-0.2 text-[8px] font-extrabold text-amber-900 uppercase">
+                      <span className="rounded bg-slate-800 px-1.5 py-0.2 text-[8px] font-extrabold text-slate-400 uppercase">
                         Desktop
                       </span>
                     </button>
@@ -774,13 +788,13 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                         mobileMenuRef.current?.removeAttribute('open');
                         setLockedFeatureModal('fundamentar');
                       }}
-                      className="studio-menu-item flex items-center justify-between"
+                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs text-slate-300 hover:bg-slate-800 transition"
                     >
                       <span className="flex items-center gap-2">
                         <Lock size={13} className="text-slate-400" />
                         <span>Fundamentación</span>
                       </span>
-                      <span className="rounded bg-slate-100 px-1.5 py-0.2 text-[8px] font-extrabold text-slate-600 uppercase">
+                      <span className="rounded bg-slate-800 px-1.5 py-0.2 text-[8px] font-extrabold text-slate-400 uppercase">
                         Desktop
                       </span>
                     </button>
@@ -848,36 +862,12 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
 
         {/* Paper Sheet */}
         <article className="legal-letterhead mx-auto flex w-full flex-col justify-between rounded-xl sm:rounded-2xl bg-white px-4 py-4 sm:px-12 sm:py-10 shadow-card sm:shadow-card transition-all border border-slate-200/90">
-          {/* Institutional Letterhead Header */}
-          <header className="border-t-2 border-legal-gold border-b border-slate-200 pb-3 mb-4 sm:mb-6">
-            <div className="flex items-center justify-between gap-2 sm:gap-4">
-              <div className="hidden sm:flex items-center gap-2 sm:gap-3">
-                <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-900 p-1 sm:p-1.5 shadow-card">
-                  <img src={logoMark} alt="Lex Corporativo" className="h-full w-full object-contain" />
-                </div>
-                <div>
-                  <span className="font-serif text-xs sm:text-sm font-bold tracking-[0.16em] sm:tracking-[0.2em] text-slate-950 block">
-                    LEX CORPORATIVO
-                  </span>
-                  <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
-                    Estudio de Ingeniería y Redacción Jurídica
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap text-left sm:text-right text-[10px] font-medium text-slate-400 w-full sm:w-auto justify-between sm:justify-end">
-                <span className="font-mono text-slate-700 font-bold tracking-tight">
-                  FOLIO · {currentDocument.id.slice(0, 8).toUpperCase()}
-                </span>
-                <span className="text-slate-300">·</span>
-                <span className="uppercase text-slate-500">
-                  {new Date(currentDocument.updatedAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })}
-                </span>
-                <span className="inline-block rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-[9px] font-medium text-slate-600 uppercase tracking-wide">
-                  Borrador
-                </span>
-              </div>
-            </div>
-          </header>
+          {/* Document Date Header - Solo la fecha */}
+          <div className="flex justify-end items-center pb-2.5 mb-3 border-b border-slate-100 text-[11px] font-medium text-slate-400 uppercase tracking-wider">
+            <span>
+              {new Date(currentDocument.updatedAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </span>
+          </div>
 
           {/* Active Template Banner (Harmonized Institutional Style) */}
           {selectedTemplate && (
@@ -923,7 +913,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                 type="text"
                 aria-label="Título del documento"
                 disabled={sessionState.transitioning || sessionState.locked}
-                value={currentDocument.title}
+                value={currentDocument.title === 'Documento Jurídico sin Título' ? '' : currentDocument.title}
                 onChange={(event) =>
                   setCurrentDocument((doc) => ({ ...doc, title: event.target.value, updatedAt: new Date().toISOString() }))
                 }

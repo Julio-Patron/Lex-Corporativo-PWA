@@ -62,131 +62,129 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      {/* Top Global Navigation Bar */}
-      <header className="sticky top-0 z-30 border-b border-slate-800 bg-legal-shell/95 backdrop-blur-md text-white shadow-premium">
-        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6">
-          {/* Brand Logo and Title - Returns to Home */}
-          <button
-            type="button"
-            onClick={onGoHome}
-            className="flex items-center gap-2 text-left focus:outline-hidden hover:opacity-90 transition cursor-pointer"
-            aria-label="Ir a la pantalla de inicio"
-            title="Volver a la portada de inicio"
-          >
-            <span className="flex h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-legal-gold/30 bg-legal-shell shadow-premium">
-              <img src={logoMark} alt="Lex Corporativo" className="h-full w-full object-cover" />
-            </span>
-            <span className="hidden sm:block">
-              <strong className="block font-serif text-sm font-medium tracking-wide text-white leading-none">
-                Lex Corporativo
-              </strong>
-              <span className="mt-1 block text-[9px] font-medium uppercase tracking-[0.16em] text-slate-400">Plataforma jurídica local</span>
-            </span>
-          </button>
-
-          {/* Module Switcher Tabs */}
-          <nav
-            aria-label="Módulos de consulta e ingeniería jurídica"
-            className="hidden md:flex min-w-0 flex-1 items-center justify-center gap-2"
-          >
+      {/* Top Global Navigation Bar - Hidden in editor to start directly from Ingeniería Jurídica and save vertical space */}
+      {activeTab !== 'estudio' && (
+        <header className="sticky top-0 z-30 border-b border-slate-800 bg-legal-shell/95 backdrop-blur-md text-white shadow-premium">
+          <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-3 px-4 sm:px-6">
+            {/* Brand Logo and Title - Returns to Home */}
             <button
               type="button"
               onClick={onGoHome}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+              className="flex items-center gap-2 text-left focus:outline-hidden hover:opacity-90 transition cursor-pointer"
+              aria-label="Ir a la pantalla de inicio"
               title="Volver a la portada de inicio"
             >
-              <Home size={15} />
-              <span>Inicio</span>
+              <span className="flex h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-legal-gold/30 bg-legal-shell shadow-premium">
+                <img src={logoMark} alt="Lex Corporativo" className="h-full w-full object-cover" />
+              </span>
+              <span className="hidden sm:block">
+                <strong className="block font-serif text-sm font-medium tracking-wide text-white leading-none">
+                  Lex Corporativo
+                </strong>
+                <span className="mt-1 block text-[9px] font-medium uppercase tracking-[0.16em] text-slate-400">Plataforma jurídica local</span>
+              </span>
             </button>
 
-            <span className="mx-1 h-5 w-px bg-slate-800" aria-hidden="true" />
-
-            {/* Core 3 Work Modules */}
-            <button
-              type="button"
-              onClick={() => onTabChange('estudio')}
-              className={`flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-bold transition cursor-pointer ${
-                activeTab === 'estudio'
-                  ? 'bg-legal-gold text-slate-950 shadow-card font-bold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-              }`}
+            {/* Module Switcher Tabs */}
+            <nav
+              aria-label="Módulos de consulta e ingeniería jurídica"
+              className="hidden md:flex min-w-0 flex-1 items-center justify-center gap-2"
             >
-              <FilePenLine size={15} />
-              <span>Ingeniería Jurídica</span>
-            </button>
+              <button
+                type="button"
+                onClick={onGoHome}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+                title="Volver a la portada de inicio"
+              >
+                <Home size={15} />
+                <span>Inicio</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => onTabChange('normativa')}
-              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer ${
-                activeTab === 'normativa'
-                  ? 'bg-legal-gold text-slate-950 shadow-card font-bold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-              }`}
-            >
-              <Scale size={15} />
-              <span className="hidden lg:inline">Fundamentador Jurídico</span>
-              <span className="lg:hidden">Fundamentos</span>
-            </button>
+              <span className="mx-1 h-5 w-px bg-slate-800" aria-hidden="true" />
 
-            <button
-              type="button"
-              onClick={() => onTabChange('licitaciones')}
-              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer ${
-                activeTab === 'licitaciones'
-                  ? 'bg-legal-gold text-slate-950 shadow-card font-bold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-              }`}
-            >
-              <Landmark size={15} />
-              <span className="hidden lg:inline">Radar Licitaciones</span>
-              <span className="lg:hidden">Licitaciones</span>
-            </button>
+              {/* Core 3 Work Modules */}
+              <button
+                type="button"
+                onClick={() => onTabChange('estudio')}
+                className="flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-bold transition cursor-pointer text-slate-300 hover:text-white hover:bg-slate-800/60"
+              >
+                <FilePenLine size={15} />
+                <span>Ingeniería Jurídica</span>
+              </button>
 
-            <span className="mx-2 h-5 w-px bg-slate-800" aria-hidden="true" />
+              <button
+                type="button"
+                onClick={() => onTabChange('normativa')}
+                className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer ${
+                  activeTab === 'normativa'
+                    ? 'bg-legal-gold text-slate-950 shadow-card font-bold'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                <Scale size={15} />
+                <span className="hidden lg:inline">Fundamentador Jurídico</span>
+                <span className="lg:hidden">Fundamentos</span>
+              </button>
 
-            {/* Desktop Presentation & Installer Showcase */}
-            <button
-              type="button"
-              onClick={() => onTabChange('desktop')}
-              className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer border ${
-                activeTab === 'desktop'
-                  ? 'bg-legal-gold text-slate-950 border-legal-gold shadow-card font-bold'
-                  : 'border-slate-700/80 bg-slate-900/60 text-slate-300 hover:border-slate-600 hover:text-white hover:bg-slate-800/80'
-              }`}
-            >
-              <MonitorDown size={14} className={activeTab === 'desktop' ? 'text-slate-950' : 'text-amber-400'} />
-              <span>Desktop</span>
-              <span className="rounded-sm bg-legal-gold/20 px-1 py-px text-[8px] font-bold uppercase text-amber-300">EXE</span>
-            </button>
-          </nav>
+              <button
+                type="button"
+                onClick={() => onTabChange('licitaciones')}
+                className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer ${
+                  activeTab === 'licitaciones'
+                    ? 'bg-legal-gold text-slate-950 shadow-card font-bold'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                <Landmark size={15} />
+                <span className="hidden lg:inline">Radar Licitaciones</span>
+                <span className="lg:hidden">Licitaciones</span>
+              </button>
 
-          {/* Action Buttons: Coverage & Info */}
-          <div className="flex items-center gap-1">
-            <div className="hidden items-center gap-2 rounded-xl border border-emerald-800 bg-emerald-950 px-3 py-2 xl:flex">
-              <ShieldCheck size={14} className="text-emerald-400" />
-              <span className="text-[10px] font-bold leading-tight text-emerald-300">100% Local y Privado<br /><span className="font-normal text-emerald-400">Disponible sin conexión</span></span>
+              <span className="mx-2 h-5 w-px bg-slate-800" aria-hidden="true" />
+
+              {/* Desktop Presentation & Installer Showcase */}
+              <button
+                type="button"
+                onClick={() => onTabChange('desktop')}
+                className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition cursor-pointer border ${
+                  activeTab === 'desktop'
+                    ? 'bg-legal-gold text-slate-950 border-legal-gold shadow-card font-bold'
+                    : 'border-slate-700/80 bg-slate-900/60 text-slate-300 hover:border-slate-600 hover:text-white hover:bg-slate-800/80'
+                }`}
+              >
+                <MonitorDown size={14} className={activeTab === 'desktop' ? 'text-slate-950' : 'text-amber-400'} />
+                <span>Desktop</span>
+                <span className="rounded-sm bg-legal-gold/20 px-1 py-px text-[8px] font-bold uppercase text-amber-300">EXE</span>
+              </button>
+            </nav>
+
+            {/* Action Buttons: Coverage & Info */}
+            <div className="flex items-center gap-1">
+              <div className="hidden items-center gap-2 rounded-xl border border-emerald-800 bg-emerald-950 px-3 py-2 xl:flex">
+                <ShieldCheck size={14} className="text-emerald-400" />
+                <span className="text-[10px] font-bold leading-tight text-emerald-300">100% Local y Privado<br /><span className="font-normal text-emerald-400">Disponible sin conexión</span></span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPanel('coverage')}
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
+                aria-label="Abrir cobertura y fuentes"
+              >
+                <Map size={17} />
+                <span className="hidden md:inline">Cobertura</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPanel('info')}
+                className="flex min-h-10 min-w-10 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                aria-label="Información"
+              >
+                <HelpCircle size={18} />
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setPanel('coverage')}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition"
-              aria-label="Abrir cobertura y fuentes"
-            >
-              <Map size={17} />
-              <span className="hidden md:inline">Cobertura</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPanel('info')}
-              className="flex min-h-10 min-w-10 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition"
-              aria-label="Información"
-            >
-              <HelpCircle size={18} />
-            </button>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Active Module Content */}
       <div className="pb-16 sm:pb-0">

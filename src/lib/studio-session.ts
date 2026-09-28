@@ -1,8 +1,8 @@
 import type { LegalArticle, LegalCitation, StudioDocument } from '../types';
 import { studioStorage } from './studio-storage';
 
-const EMPTY_TITLE = 'Documento Jurídico sin Título';
-const EMPTY_HTML = '<h2>INSTRUMENTO JURÍDICO</h2><p>Comienza a redactar tu contrato, convenio o escrito aquí…</p>';
+const EMPTY_TITLE = '';
+const EMPTY_HTML = '<h2>Título</h2><p></p>';
 const PENDING_CITATION = 'lex_studio_pending_citation';
 
 export function createStudioDocument(partial: Partial<StudioDocument> = {}): StudioDocument {
@@ -12,7 +12,9 @@ export function createStudioDocument(partial: Partial<StudioDocument> = {}): Stu
 }
 
 export function isUntouchedStudioDocument(document: StudioDocument): boolean {
-  return document.sourceKind === 'blank' && document.title === EMPTY_TITLE && document.editorHtml === EMPTY_HTML && document.citations.length === 0;
+  const isTitleEmpty = !document.title || document.title === EMPTY_TITLE || document.title === 'Documento Jurídico sin Título';
+  const isHtmlEmpty = !document.editorHtml || document.editorHtml === EMPTY_HTML || document.editorHtml === '<h2>Título</h2>' || document.editorHtml === '<p></p>' || document.editorHtml.includes('Comienza a redactar tu contrato');
+  return document.sourceKind === 'blank' && isTitleEmpty && isHtmlEmpty && document.citations.length === 0;
 }
 
 type Persistence = typeof studioStorage;

@@ -92,40 +92,37 @@ export function Introduction({ onOpenStation }: IntroductionProps) {
             <span className="text-[10px] text-slate-400">Acceso directo sin registro</span>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3 text-left">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-3 text-left">
             {/* Módulo 1: Ingeniería Jurídica */}
             <div
               onClick={() => handleStart('estudio')}
-              className="group relative rounded-2xl border border-legal-gold/30 bg-gradient-to-b from-slate-900/90 to-slate-950/90 p-5 shadow-card backdrop-blur-md transition-all duration-200 hover:border-legal-gold/70 hover:shadow-premium flex flex-col justify-between cursor-pointer"
+              className="group relative rounded-xl border border-legal-gold/30 bg-gradient-to-b from-slate-900/90 to-slate-950/90 p-3.5 sm:p-4 shadow-card backdrop-blur-md transition-all duration-200 hover:border-legal-gold/70 hover:shadow-premium flex flex-col justify-between cursor-pointer"
             >
               <div>
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-legal-gold/30 bg-legal-gold/15 text-legal-gold">
-                    <FilePenLine size={18} />
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-legal-gold/30 bg-legal-gold/15 text-legal-gold">
+                    <FilePenLine size={16} />
                   </span>
                   <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                    25 documentos: Asambleas y contratos
+                    25 documentos
                   </span>
                 </div>
-                <h3 className="font-serif text-base font-bold text-white transition group-hover:text-legal-gold">
+                <h3 className="font-serif text-sm sm:text-base font-bold text-white transition group-hover:text-legal-gold">
                   Ingeniería Jurídica
                 </h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-300">
-                  Redacción estructurada con variables guiadas e importación local DOCX/PDF. Sin almacenamiento en la nube, sin rastreo ni telemetría.
-                </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800/80">
+              <div className="mt-3 pt-2.5 border-t border-slate-800/80">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleStart('estudio');
                   }}
-                  className="flex w-full items-center justify-between rounded-lg border border-legal-gold/30 bg-legal-gold/10 px-3 py-2 text-xs font-semibold text-legal-gold transition group-hover:bg-legal-gold group-hover:text-slate-950"
+                  className="flex w-full items-center justify-between rounded-lg border border-legal-gold/30 bg-legal-gold/10 px-3 py-1.5 text-xs font-semibold text-legal-gold transition group-hover:bg-legal-gold group-hover:text-slate-950"
                 >
                   <span>Redactar Instrumentos</span>
-                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
                 </button>
               </div>
             </div>
@@ -133,36 +130,33 @@ export function Introduction({ onOpenStation }: IntroductionProps) {
             {/* Módulo 2: Fundamentador Jurídico */}
             <div
               onClick={() => handleStart('normativa')}
-              className="group relative rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-card backdrop-blur-md transition-all duration-200 hover:border-blue-500/50 hover:bg-slate-900/90 hover:shadow-premium flex flex-col justify-between cursor-pointer"
+              className="group relative rounded-xl border border-slate-800 bg-slate-900/70 p-3.5 sm:p-4 shadow-card backdrop-blur-md transition-all duration-200 hover:border-blue-500/50 hover:bg-slate-900/90 hover:shadow-premium flex flex-col justify-between cursor-pointer"
             >
               <div>
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400">
-                    <BookOpenCheck size={18} />
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400">
+                    <BookOpenCheck size={16} />
                   </span>
                   <span className="rounded-md bg-blue-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-300">
-                    5 materias: {CORPUS_STATS.instruments} leyes federales
+                    {CORPUS_STATS.instruments} leyes federales
                   </span>
                 </div>
-                <h3 className="font-serif text-base font-bold text-white transition group-hover:text-blue-300">
+                <h3 className="font-serif text-sm sm:text-base font-bold text-white transition group-hover:text-blue-300">
                   Fundamentador Jurídico
                 </h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-300">
-                  Consulta en Laboral, Mercantil, Fiscal, Aduanal y Comercio Exterior con motor SQLite WASM determinista en navegador.
-                </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800/80">
+              <div className="mt-3 pt-2.5 border-t border-slate-800/80">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleStart('normativa');
                   }}
-                  className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs font-semibold text-slate-300 transition group-hover:border-blue-500/60 group-hover:bg-blue-600 group-hover:text-white"
+                  className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition group-hover:border-blue-500/60 group-hover:bg-blue-600 group-hover:text-white"
                 >
                   <span>Consultar Fundamentador</span>
-                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
                 </button>
               </div>
             </div>
@@ -170,36 +164,33 @@ export function Introduction({ onOpenStation }: IntroductionProps) {
             {/* Módulo 3: Radar de Licitaciones */}
             <div
               onClick={() => handleStart('licitaciones')}
-              className="group relative rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-card backdrop-blur-md transition-all duration-200 hover:border-amber-500/50 hover:bg-slate-900/90 hover:shadow-premium flex flex-col justify-between cursor-pointer"
+              className="group relative rounded-xl border border-slate-800 bg-slate-900/70 p-3.5 sm:p-4 shadow-card backdrop-blur-md transition-all duration-200 hover:border-amber-500/50 hover:bg-slate-900/90 hover:shadow-premium flex flex-col justify-between cursor-pointer"
             >
               <div>
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400">
-                    <Landmark size={18} />
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400">
+                    <Landmark size={16} />
                   </span>
                   <span className="rounded-md bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
                     {LICITACIONES_STATS.total.toLocaleString('es-MX')} licitaciones
                   </span>
                 </div>
-                <h3 className="font-serif text-base font-bold text-white transition group-hover:text-amber-300">
+                <h3 className="font-serif text-sm sm:text-base font-bold text-white transition group-hover:text-amber-300">
                   Radar de Licitaciones
                 </h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-300">
-                  CompraNet federal + compras estatales (Yucatán) con seguimiento de convocatorias, bases, juntas de aclaraciones y plazos.
-                </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800/80">
+              <div className="mt-3 pt-2.5 border-t border-slate-800/80">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleStart('licitaciones');
                   }}
-                  className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-2 text-xs font-semibold text-slate-300 transition group-hover:border-amber-500/60 group-hover:bg-amber-600 group-hover:text-white"
+                  className="flex w-full items-center justify-between rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition group-hover:border-amber-500/60 group-hover:bg-amber-600 group-hover:text-white"
                 >
                   <span>Explorar Radar</span>
-                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
                 </button>
               </div>
             </div>
