@@ -13,9 +13,19 @@ export function FootnotesAppendix({ citations, onRemoveCitation }: FootnotesAppe
   if (citations.length === 0) return null;
 
   const copyCitationText = (citation: LegalCitation) => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(10);
+    }
     const text = `${citation.lawName}, ${citation.articleNumber}.\n${citation.content}\nFuente oficial: ${citation.sourceName} (${citation.sourceUrl})`;
     navigator.clipboard.writeText(text);
     notify('Cita legal copiada al portapapeles.', 'success');
+  };
+
+  const handleRemove = (id: string) => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+    onRemoveCitation(id);
   };
 
   return (
@@ -65,24 +75,24 @@ export function FootnotesAppendix({ citations, onRemoveCitation }: FootnotesAppe
               </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-1 opacity-80 group-hover:opacity-100">
+            <div className="flex shrink-0 items-center gap-1 opacity-90 group-hover:opacity-100">
               <button
                 type="button"
                 onClick={() => copyCitationText(citation)}
-                className="studio-icon-button h-7 w-7 min-h-7 min-w-7 text-slate-400 hover:text-slate-900"
+                className="studio-icon-button h-9 w-9 min-h-9 min-w-9 sm:h-7 sm:w-7 sm:min-h-7 sm:min-w-7 text-slate-400 hover:text-slate-900 active:scale-90"
                 title="Copiar texto de la cita"
                 aria-label={`Copiar cita ${index + 1}`}
               >
-                <Copy size={13} />
+                <Copy size={14} className="sm:w-3.5 sm:h-3.5" />
               </button>
               <button
                 type="button"
-                onClick={() => onRemoveCitation(citation.id)}
-                className="studio-icon-button h-7 w-7 min-h-7 min-w-7 text-slate-400 hover:text-red-600"
+                onClick={() => handleRemove(citation.id)}
+                className="studio-icon-button h-9 w-9 min-h-9 min-w-9 sm:h-7 sm:w-7 sm:min-h-7 sm:min-w-7 text-slate-400 hover:text-red-600 active:scale-90"
                 title="Eliminar de las notas al pie"
                 aria-label={`Eliminar cita ${index + 1}`}
               >
-                <Trash2 size={13} />
+                <Trash2 size={14} className="sm:w-3.5 sm:h-3.5" />
               </button>
             </div>
           </li>

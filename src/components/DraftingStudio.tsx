@@ -41,6 +41,7 @@ import { useUiStore } from '../store/useUiStore';
 import { TemplateCatalogModal } from './studio/TemplateCatalogModal';
 import { StudioWelcomeHub } from './studio/StudioWelcomeHub';
 import { EditorBubbleMenu } from './studio/EditorBubbleMenu';
+import { MobileEditorToolbar } from './studio/MobileEditorToolbar';
 import { FootnotesAppendix } from './studio/FootnotesAppendix';
 import { ClauseAuditorDrawer } from './studio/ClauseAuditorDrawer';
 import { DesktopFeatureLockModal, type LockedFeatureType } from './studio/DesktopFeatureLockModal';
@@ -100,7 +101,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
     content: currentDocument.editorHtml,
     editorProps: {
       attributes: {
-        class: 'studio-editor min-h-[480px] outline-none leading-relaxed text-slate-800 text-sm sm:text-base',
+        class: 'studio-editor min-h-[480px] outline-none leading-relaxed text-slate-800 text-base',
         'aria-label': 'Contenido editable del documento',
       },
     },
@@ -426,6 +427,14 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
     return `${currentDocument.title}\n\n${strippedHtml}`;
   }, [editor, currentDocument.editorHtml, currentDocument.title]);
 
+  const { wordCount, readingMinutes } = useMemo(() => {
+    const rawText = editor && !editor.isDestroyed ? editor.getText() : currentDocument.editorHtml.replace(/<[^>]+>/g, ' ');
+    const trimmed = rawText.trim();
+    const words = trimmed ? trimmed.split(/\s+/).length : 0;
+    const reading = Math.max(1, Math.ceil(words / 200));
+    return { wordCount: words, readingMinutes: reading };
+  }, [editor, currentDocument.editorHtml]);
+
   return (
     <div className="flex min-h-[calc(100vh-64px)] flex-col bg-slate-100/70 text-slate-950">
       {/* Top Main Navigation Bar */}
@@ -482,7 +491,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
               <button
                 type="button"
                 onClick={() => setShowCatalogModal(true)}
-                className="studio-action gap-1 font-bold text-slate-800 hover:border-legal-gold cursor-pointer hidden sm:inline-flex"
+                className="studio-action gap-1 font-bold text-slate-800 hover:border-legal-gold cursor-pointer inline-flex"
                 title="Iniciar nuevo documento desde el catálogo de instrumentos"
               >
                 <Plus size={14} className="text-legal-golddark" />
@@ -558,10 +567,12 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
               <button
                 type="button"
                 onClick={shareDocument}
-                className="studio-action hidden sm:inline-flex"
+                className="studio-action inline-flex gap-1.5"
                 title="Compartir documento o copiar texto"
+                aria-label="Compartir documento"
               >
                 <Share2 size={14} className="text-slate-500" />
+                <span className="hidden sm:inline">Compartir</span>
               </button>
             </div>
 
@@ -639,7 +650,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
       )}
 
       {/* Main Workspace: Clean Centered Canvas */}
-      <main className="mx-auto w-full max-w-4xl flex-1 px-3 py-2 sm:px-6 sm:py-8 pb-24 sm:pb-12">
+      <main className="mx-auto w-full max-w-4xl flex-1 px-3 py-2 sm:px-6 sm:py-8 pb-36 sm:pb-12">
         {/* Paper Sheet */}
         <article className="legal-letterhead mx-auto flex w-full flex-col justify-between rounded-xl sm:rounded-2xl bg-white px-4 py-4 sm:px-12 sm:py-10 shadow-card sm:shadow-card transition-all border border-slate-200/90">
           {/* Institutional Letterhead Header */}
@@ -675,7 +686,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
 
           {/* Active Template Banner (Harmonized Institutional Style) */}
           {selectedTemplate && (
-            <div className="mb-4 hidden sm:flex items-center justify-between gap-3 rounded-xl border border-slate-200/90 bg-slate-50/80 px-4 py-2.5 text-xs text-slate-700 shadow-card">
+            <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-slate-200/90 bg-slate-50/90 p-3 sm:px-4 sm:py-2.5 text-xs text-slate-700 shadow-card">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-legal-gold/15 text-legal-golddark shrink-0">
                   <Sparkles size={13} />
@@ -723,6 +734,8 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                 }
                 className="w-full rounded-lg border border-transparent bg-transparent px-2 py-1 font-serif text-lg sm:text-xl font-bold text-slate-900 outline-none transition focus:border-legal-gold focus:bg-slate-50 placeholder:font-sans placeholder:text-sm placeholder:font-normal placeholder:text-slate-400"
                 placeholder="Título del documento o contrato…"
+                enterKeyHint="done"
+                autoCapitalize="sentences"
               />
             </div>
 
@@ -802,14 +815,32 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
           <FootnotesAppendix citations={currentDocument.citations} onRemoveCitation={removeCitation} />
 
           {/* Institutional Letterhead Footer */}
-          <footer className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-2 border-t border-slate-200 pt-3 sm:pt-4 text-[9px] text-slate-400">
-            <span>Lex Corporativo PWA · Borradores locales</span>
+          <footer className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-slate-200 pt-3 sm:pt-4 text-[9px] sm:text-[10px] text-slate-400">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span>Lex Corporativo PWA · Borradores locales</span>
+              <span className="hidden sm:inline">·</span>
+              <span className="font-mono text-slate-500 font-medium">
+                {wordCount} palabras · ~{readingMinutes} min de lectura
+              </span>
+            </div>
             <span className="font-bold uppercase text-slate-500 text-[8px] sm:text-[9px]">
               Vista de edición · Paginación al exportar
             </span>
           </footer>
         </article>
       </main>
+
+      {/* Mobile Floating Action & Formatting Bar (Thumb Zone) */}
+      <MobileEditorToolbar
+        editor={editor}
+        onOpenAssistant={() => setShowAssistantDrawer(true)}
+        onShare={shareDocument}
+        hasVariables={Boolean(selectedTemplate && selectedTemplate.fields.length > 0)}
+        variableCount={selectedTemplate?.fields.length ?? 0}
+        onOpenVariables={openVariables}
+        wordCount={wordCount}
+        readingMinutes={readingMinutes}
+      />
 
       {/* Opción A & C: Assistant Drawer for Foundation Search & Insertion */}
       {showAssistantDrawer && (
@@ -866,6 +897,8 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, sessi
                   onChange={(e) => setFoundationQuery(e.target.value)}
                   placeholder="Buscar artículo, término o seleccionar texto…"
                   className="studio-input pl-9 text-base sm:text-xs"
+                  enterKeyHint="search"
+                  inputMode="search"
                 />
                 <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               </div>

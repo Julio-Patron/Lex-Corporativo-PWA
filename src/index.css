@@ -335,6 +335,7 @@ body {
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 0.95rem;
   line-height: 1.85;
+  touch-action: manipulation;
 }
 
 .studio-editor p {
@@ -398,7 +399,10 @@ body {
 }
 
 @media (max-width: 640px) {
-  .studio-editor { font-size: 0.875rem; line-height: 1.75; }
+  .studio-editor {
+    font-size: 1rem; /* 16px prevents iOS Safari auto-zoom on mobile focus */
+    line-height: 1.75;
+  }
 }
 
 @keyframes slideLeft {

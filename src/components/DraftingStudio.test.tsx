@@ -121,4 +121,14 @@ describe('DraftingStudio Component', () => {
 
     expect(screen.getByRole('dialog', { name: 'Variables de la plantilla' })).toBeInTheDocument();
   });
+
+  it('renderiza la barra de herramientas móvil con métricas de palabras y lectura', async () => {
+    await act(async () => {
+      render(<DraftingStudio />);
+    });
+
+    expect(screen.getByLabelText('Barra de herramientas móvil')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Compartir documento').length).toBeGreaterThan(0);
+    expect(screen.getByText(/palabras · ~/i)).toBeInTheDocument();
+  });
 });
