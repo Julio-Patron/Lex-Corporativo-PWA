@@ -19,8 +19,8 @@ interface MobileEditorToolbarProps {
   onOpenVariables?: () => void;
   hasVariables?: boolean;
   variableCount?: number;
-  wordCount: number;
-  readingMinutes: number;
+  wordCount?: number;
+  readingMinutes?: number;
 }
 
 export function MobileEditorToolbar({
@@ -30,8 +30,6 @@ export function MobileEditorToolbar({
   onOpenVariables,
   hasVariables,
   variableCount = 0,
-  wordCount,
-  readingMinutes,
 }: MobileEditorToolbarProps) {
   if (!editor) return null;
 
@@ -201,11 +199,11 @@ export function MobileEditorToolbar({
               vibrate();
               onOpenAssistant();
             }}
-            className="flex h-9 items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50/80 px-2.5 text-xs font-bold text-amber-900 transition active:scale-90 shrink-0 hover:bg-amber-100 cursor-pointer"
+            className="flex h-9 items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-100 px-3 text-xs font-bold text-amber-950 transition active:scale-90 shrink-0 hover:bg-amber-200 cursor-pointer shadow-sm"
             title="Consultar corpus legal para fundamentar"
             aria-label="Asistente de fundamentación legal"
           >
-            <Search size={14} className="text-legal-golddark" />
+            <Search size={14} className="text-amber-700" />
             <span>Fundamentar</span>
           </button>
 
@@ -242,16 +240,6 @@ export function MobileEditorToolbar({
           >
             <Share2 size={16} />
           </button>
-        </div>
-
-        {/* Word Metric Chip */}
-        <div
-          className="hidden min-[380px]:flex items-center shrink-0 pl-1 border-l border-slate-200/80"
-          title={`${wordCount} palabras · ~${readingMinutes} min de lectura estimada`}
-        >
-          <span className="rounded-lg bg-slate-100 px-2 py-1 font-mono text-[10px] font-semibold text-slate-600">
-            {wordCount} pal
-          </span>
         </div>
       </div>
     </aside>
