@@ -12,7 +12,10 @@ export type AnalyticsEvent =
   | 'desktop_lock_modal_download_click'
   | 'desktop_lock_modal_learn_more_click'
   | 'station_enter'
-  | 'home_return_click';
+  | 'home_return_click'
+  | 'pro_access_modal_open'
+  | 'pro_license_activated'
+  | 'pro_byok_ai_studio_click';
 
 export type EventProperties = Record<string, string | number | boolean | null | undefined>;
 

@@ -1,6 +1,8 @@
 # Lex Corporativo PWA — Consulta Jurídica y Radar de Licitaciones Abiertas
 
-PWA gratuita para consultar legislación federal mexicana y procedimientos de contratación pública (licitaciones abiertas de CompraNet). El producto está enfocado en búsqueda rápida, verificable y limpia; no requiere registro, licencia ni clave de API.
+PWA para consultar legislación federal mexicana y procedimientos de contratación pública (licitaciones abiertas de CompraNet), con **Edición Pro Móvil de pago único** (descargable vía web como PWA instalable) que habilita el editor con IA BYOK y el Fundamentador Jurídico RAG.
+
+La consulta normativa y de licitaciones sigue siendo gratuita y sin registro. La capa Pro (editor con IA) se activa en el dispositivo con un código de licencia o con tu propia clave de Google AI Studio (BYOK); ninguna clave ni documento sale del dispositivo salvo la llamada directa a la API de Gemini.
 
 La plataforma web ofrece dos servicios de consulta independientes:
 1. **Buscador Normativo Federal**: Consulta de leyes y reglamentos federales con motor SQLite WASM en sesión y enlaces directos a la Cámara de Diputados.
@@ -14,18 +16,19 @@ La plataforma web ofrece dos servicios de consulta independientes:
 - **Privacidad y Medición**: Sin almacenamiento de consultas ni rastreo confidencial; métricas web agregadas con Vercel Analytics y Speed Insights.
 - **PWA Ligera**: Instalación como aplicación web progresiva con precaché ligero del shell de la aplicación (sin precargar 7 MiB de corpus/WASM).
 - **Ingeniería Jurídica**: Editor de instrumentos con plantillas, citas normativas, importación DOCX/PDF/TXT y exportación de copias. Los borradores se guardan en IndexedDB del navegador; no se sincronizan ni se cifran por la aplicación. Una sola pestaña puede editarlos a la vez.
+- **Edición Pro Móvil (de paga, descargable vía web)**: versión PWA solo para móviles con el editor con IA BYOK. El **Fundamentador Jurídico IA** recupera artículos del corpus SQLite WASM local (RAG), los inyecta como contexto y llama a Gemini directamente desde el navegador con la clave del usuario. Se activa con código de licencia (pago único) o con la clave gratuita de Google AI Studio, y se instala con «Añadir a pantalla de inicio» (sin tiendas ni comisiones).
 
 ## Diferenciación Arquitectónica: PWA vs. Desktop
 
 | Característica | PWA (Web / Móvil) | Desktop (Windows x64) |
 | --- | --- | --- |
-| **Propósito** | Herramienta gratuita y ágil de consulta y embudo | Estación de trabajo profesional de alta densidad |
-| **Operación Offline** | En línea requerida (SQLite WASM en sesión) | 100% Offline autónomo (LanceDB + ONNX Runtime) |
-| **Corpus Integrado** | 13 leyes y reglamentos (5,011 disposiciones) | 16 ordenamientos completos (7,348 fragmentos RAG) |
+| **Propósito** | Consulta ágil + Edición Pro Móvil de paga (editor IA BYOK, Fundamentador RAG) | Estación de trabajo profesional de alta densidad |
+| **Operación Offline** | En línea requerida (SQLite WASM en sesión); Pro llama a Gemini vía BYOK | 100% Offline autónomo (LanceDB + ONNX Runtime) |
+| **Corpus Integrado** | 13 leyes y reglamentos (5,011 disposiciones); RAG local alimenta al Fundamentador IA | 16 ordenamientos completos (7,348 fragmentos RAG) |
 | **Auditoría Contractual** | N/A | Auditoría de riesgos en 5 materias con semáforos |
-| **Redacción Jurídica** | Plantillas y editor local; exportación DOCX, PDF y TXT | Asistente de redacción y exportación Word (.docx) y PDF |
+| **Redacción Jurídica** | Plantillas y editor local; exportación DOCX, PDF y TXT; IA BYOK en la Edición Pro | Asistente de redacción y exportación Word (.docx) y PDF |
 | **Bóveda de Expedientes** | N/A | SQLite local cifrado en disco del usuario |
-| **Modelo de Privacidad** | Sin registro; telemetría web anónima agregada | Método BYOK; claves en Windows DPAPI; Cero Nube |
+| **Modelo de Privacidad** | Sin registro; telemetría web anónima agregada; claves BYOK en IndexedDB del dispositivo | Método BYOK; claves en Windows DPAPI; Cero Nube |
 
 ## Corpus y Fuentes
 
@@ -70,5 +73,6 @@ El precaché incluye el worker PDF; la búsqueda normativa sigue necesitando des
 - **Motor de Licitaciones**: Búsqueda estructurada por tokens y filtros facetados con cronogramas de cierre.
 - **Estado**: Zustand para navegación y notificaciones efímeras.
 - **Sesión de redacción**: `studio-session.ts` coordina revisión, recuperación, citas y transiciones; `studio-storage.ts` encapsula IndexedDB. Las plantillas se precompilan durante el build para respetar CSP sin `unsafe-eval`.
+- **Edición Pro (pago único, BYOK)**: `pro-license.ts` guarda licencia/clave Gemini ofuscadas en IndexedDB (DB `lex-corporativo-pro`); `fundamentador-ai.ts` implementa el RAG del Fundamentador (recuperación con `executeCorpusSearch` + grounding a la API de Gemini `gemini-2.0-flash` con la clave del usuario). `ProAccessModal` (activación licencia/BYOK) y `FundamentadorAiDrawer` (análisis + fuentes citables) viven en `src/components/pro/`.
 - **PWA & Caché**: `vite-plugin-pwa` con Workbox configurado exclusivamente para el shell web estático.
 - **Analítica Web**: Vercel Analytics y Speed Insights para medición de rendimiento y conversión hacia Desktop.

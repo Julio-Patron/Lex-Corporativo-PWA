@@ -41,6 +41,8 @@ import { EditorBubbleMenu } from './studio/EditorBubbleMenu';
 import { MobileEditorToolbar } from './studio/MobileEditorToolbar';
 import { FootnotesAppendix } from './studio/FootnotesAppendix';
 import { DesktopFeatureLockModal, type LockedFeatureType } from './studio/DesktopFeatureLockModal';
+import { ProAccessModal } from './pro/ProAccessModal';
+import { isProUnlocked } from '../lib/pro-license';
 import type {
   LegalArticle,
   LegalTemplate,
@@ -52,6 +54,9 @@ const ClauseAuditorDrawer = lazy(() =>
 );
 const AssistantFundamentadorDrawer = lazy(() =>
   import('./studio/AssistantFundamentadorDrawer').then((m) => ({ default: m.AssistantFundamentadorDrawer })),
+);
+const FundamentadorAiDrawer = lazy(() =>
+  import('./pro/FundamentadorAiDrawer').then((m) => ({ default: m.FundamentadorAiDrawer })),
 );
 
 const escapeHtml = (value: string) =>
@@ -95,6 +100,25 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
   const [lockedFeatureModal, setLockedFeatureModal] = useState<LockedFeatureType>(null);
   const [assistantQuery, setAssistantQuery] = useState('');
   const [showMobileCatalogPrompt, setShowMobileCatalogPrompt] = useState(false);
+  const [showProAccessModal, setShowProAccessModal] = useState(false);
+  const [showFundamentadorAi, setShowFundamentadorAi] = useState(false);
+  const [isPro, setIsPro] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void isProUnlocked().then((value) => { if (active) setIsPro(value); });
+    return () => { active = false; };
+  }, [showProAccessModal]);
+
+  /** Abre el Fundamentador: IA+BYOK si es Pro; si no, el paywall de activación. */
+  function openFundamentador(query = '') {
+    setAssistantQuery(query);
+    if (isPro) {
+      setShowFundamentadorAi(true);
+    } else {
+      setShowProAccessModal(true);
+    }
+  }
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -206,7 +230,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
         });
       } else if (isModifier && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        setLockedFeatureModal('fundamentar');
+        openFundamentador();
         if (typeof navigator !== 'undefined' && navigator.vibrate) {
           navigator.vibrate(10);
         }
@@ -396,6 +420,14 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
     ).run();
     addCitation(article);
     notify('Cita textual en bloque insertada.', 'success');
+  }
+
+  function insertAnalysis(text: string) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+    editor?.chain().focus().insertContent(textToHtml(text)).run();
+    notify('Fundamentación insertada en el documento.', 'success');
   }
 
   function removeCitation(citationId: string) {
@@ -1007,8 +1039,8 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
                 type="button"
                 onClick={() => {
                   if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
-                  setAssistantQuery(editor?.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to, ' ').trim() || '');
-                  setShowAssistantDrawer(true);
+                  const selected = editor?.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to, ' ').trim() || '';
+                  openFundamentador(selected);
                 }}
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-card transition cursor-pointer"
                 title="Fundamentar cita legal"
@@ -1022,10 +1054,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
           {/* Opción A: TipTap Bubble Menu for Selection */}
           <EditorBubbleMenu
             editor={editor}
-            onFundamentar={(query) => {
-              setAssistantQuery(query);
-              setLockedFeatureModal('fundamentar');
-            }}
+            onFundamentar={(query) => openFundamentador(query)}
           />
 
           {/* TipTap Document Content */}
@@ -1055,7 +1084,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
       {/* Mobile Floating Action & Formatting Bar (Thumb Zone) */}
       <MobileEditorToolbar
         editor={editor}
-        onOpenAssistant={() => setShowAssistantDrawer(true)}
+        onOpenAssistant={() => openFundamentador()}
         onShare={shareDocument}
         hasVariables={Boolean(selectedTemplate && selectedTemplate.fields.length > 0)}
         variableCount={selectedTemplate?.fields.length ?? 0}
@@ -1105,6 +1134,35 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
         feature={lockedFeatureModal}
         onNavigateToDesktop={onNavigateToDesktop}
       />
+
+      {/* Paywall Pro Móvil (licencia o BYOK) */}
+      <ProAccessModal
+        isOpen={showProAccessModal}
+        onClose={() => setShowProAccessModal(false)}
+        onActivated={() => {
+          setIsPro(true);
+          setShowProAccessModal(false);
+          setShowFundamentadorAi(true);
+        }}
+        featureName="Fundamentador Jurídico IA"
+      />
+
+      {/* Fundamentador IA (Pro): RAG local + Gemini BYOK */}
+      {showFundamentadorAi && (
+        <Suspense fallback={null}>
+          <FundamentadorAiDrawer
+            isOpen={showFundamentadorAi}
+            onClose={() => setShowFundamentadorAi(false)}
+            initialQuery={assistantQuery}
+            documentContext={documentPlainText}
+            citations={currentDocument.citations}
+            onInsertFootnote={insertFootnote}
+            onInsertBlockquote={insertBlockquote}
+            onAddCitation={addCitation}
+            onInsertAnalysis={insertAnalysis}
+          />
+        </Suspense>
+      )}
 
       {/* Opción D: Clause Auditor Drawer */}
       {showAuditorDrawer && (

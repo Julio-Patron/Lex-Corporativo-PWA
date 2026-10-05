@@ -16,7 +16,7 @@ export default defineConfig({
       manifest: {
         name: 'Lex Corporativo — Consulta Federal y Licitaciones',
         short_name: 'Lex Corporativo',
-        description: 'Consulta gratuita de legislación federal y buscador de licitaciones abiertas en México (CompraNet).',
+        description: 'Consulta de legislación federal, licitaciones y Edición Pro Móvil de pago único con editor IA (BYOK) y Fundamentador Jurídico RAG. Instálala desde la web.',
         lang: 'es-MX',
         theme_color: '#070b13',
         background_color: '#070b13',
