@@ -1,334 +1,151 @@
-import { useEffect, useState } from 'react';
-import {
-  BadgeCheck,
-  CheckCircle2,
-  ExternalLink,
-  KeyRound,
-  LoaderCircle,
-  Lock,
-  ShieldCheck,
-  Smartphone,
-  Sparkles,
-  X,
-} from 'lucide-react';
-import {
-  activateWithLicenseCode,
-  isLicenseCodeFormat,
-  isLikelyGeminiApiKey,
-  saveByokApiKey,
-  type ProSession,
-} from '../../lib/pro-license';
-import { trackEvent } from '../../lib/analytics';
-import { useUiStore } from '../../store/useUiStore';
-import logoMark from '../../assets/logo-mark.png';
-
-type Step = 'choose' | 'license' | 'byok';
+import { useEffect, useRef, useState } from 'react';
+import { ExternalLink, X } from 'lucide-react';
+import { getByokApiKey, getProSession, isLikelyGeminiApiKey, removeByokApiKey, saveByokApiKey, type ProSession } from '../../lib/pro-license';
+import { GEMINI_MODEL, testGeminiApiKey } from '../../services/fundamentador-ai';
+import { AccessibleDialog } from '../ui/AccessibleDialog';
 
 interface ProAccessModalProps {
   isOpen: boolean;
   onClose: () => void;
-  /** Se invoca tras activación exitosa (con la sesión Pro). */
-  onActivated?: (session: ProSession) => void;
-  /** Texto contextual de la función bloqueada (ej. "Fundamentación con IA"). */
+  /** Notifica un cambio de configuración, NO una activación de licencia. */
+  onActivated?: () => void;
   featureName?: string;
 }
 
 export function ProAccessModal({ isOpen, onClose, onActivated, featureName }: ProAccessModalProps) {
-  const { notify } = useUiStore();
-  const [step, setStep] = useState<Step>('choose');
-  const [licenseCode, setLicenseCode] = useState('');
   const [apiKey, setApiKey] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [storedKey, setStoredKey] = useState<string | null>(null);
+  const [session, setSession] = useState<ProSession | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<'test' | 'save' | 'delete' | null>(null);
   const [error, setError] = useState('');
+  const [status, setStatus] = useState('');
+  const [online, setOnline] = useState(navigator.onLine);
+  const request = useRef<AbortController | null>(null);
+  const generation = useRef(0);
 
   useEffect(() => {
+    const update = () => {
+      setOnline(navigator.onLine);
+      if (!navigator.onLine) {
+        request.current?.abort();
+        setBusy((value) => value === 'test' ? null : value);
+      }
+    };
+    window.addEventListener('online', update);
+    window.addEventListener('offline', update);
+    return () => {
+      window.removeEventListener('online', update);
+      window.removeEventListener('offline', update);
+    };
+  }, []);
+
+  useEffect(() => {
+    const current = ++generation.current;
     if (isOpen) {
-      setStep('choose');
+      setApiKey('');
       setError('');
-      setBusy(false);
-      trackEvent('pro_access_modal_open', { feature: featureName ?? 'generic' });
+      setStatus('');
+      setBusy(null);
+      setLoading(true);
+      void Promise.all([getByokApiKey(), getProSession()]).then(([key, savedSession]) => {
+        if (generation.current !== current) return;
+        setStoredKey(key);
+        setSession(savedSession);
+        setLoading(false);
+      });
     }
-  }, [isOpen, featureName]);
+    return () => {
+      generation.current++;
+      request.current?.abort();
+      request.current = null;
+    };
+  }, [isOpen]);
 
-  if (!isOpen) return null;
-
-  const handleActivateLicense = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (!isLicenseCodeFormat(licenseCode)) {
-      setError('Formato inválido. Usa el código exactamente como aparece en tu comprobante.');
-      return;
-    }
-    setBusy(true);
-    try {
-      const session = await activateWithLicenseCode(licenseCode);
-      trackEvent('pro_license_activated', { method: 'license' });
-      notify('Licencia Pro activada en este dispositivo.', 'success');
-      onActivated?.(session);
-      onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'No fue posible activar la licencia.');
-    } finally {
-      setBusy(false);
-    }
+  const close = () => {
+    generation.current++;
+    request.current?.abort();
+    setApiKey('');
+    setStoredKey(null);
+    onClose();
   };
 
-  const handleSaveByok = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (!isLikelyGeminiApiKey(apiKey)) {
+  async function act(action: 'test' | 'save' | 'delete') {
+    const key = apiKey.trim() || storedKey || '';
+    if (action !== 'delete' && !isLikelyGeminiApiKey(key)) {
       setError('La clave no parece válida. Cópiala completa desde Google AI Studio.');
       return;
     }
-    setBusy(true);
+    request.current?.abort();
+    const controller = new AbortController();
+    request.current = controller;
+    const current = generation.current;
+    setError('');
+    setStatus('');
+    setBusy(action);
     try {
-      const session = await saveByokApiKey(apiKey);
-      trackEvent('pro_license_activated', { method: 'byok' });
-      notify('Clave BYOK guardada. Fundamentador IA habilitado.', 'success');
-      onActivated?.(session);
-      onClose();
+      if (action === 'test') await testGeminiApiKey(key, { signal: controller.signal });
+      if (action === 'save') await saveByokApiKey(key);
+      if (action === 'delete') await removeByokApiKey();
+      if (generation.current !== current || controller.signal.aborted) return;
+      if (action === 'test') setStatus(`Conexión verificada con ${GEMINI_MODEL}. Esto no garantiza cuota futura ni exactitud jurídica.`);
+      else {
+        setStoredKey(action === 'save' ? key : null);
+        setApiKey('');
+        setStatus(action === 'save' ? 'Clave guardada. Guardarla no verifica la conexión ni activa una licencia.' : 'Clave eliminada. La licencia no se ha modificado.');
+        onActivated?.();
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No fue posible guardar la clave.');
+      if (generation.current === current && !controller.signal.aborted) {
+        setError(err instanceof Error ? err.message : 'No fue posible completar la operación.');
+      }
     } finally {
-      setBusy(false);
+      if (generation.current === current && request.current === controller) {
+        request.current = null;
+        setBusy(null);
+      }
     }
-  };
+  }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="pro-access-title"
-      className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center bg-slate-950/70 backdrop-blur-sm animate-fadeIn"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl sm:rounded-2xl border border-slate-700 bg-slate-900 text-white shadow-dialog animate-slideUp sm:animate-fadeIn">
-        {/* Mobile handle */}
-        <div className="flex justify-center pb-0 pt-3 sm:hidden">
-          <div className="h-1 w-10 rounded-full bg-slate-700" />
-        </div>
-
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 p-4 sm:px-6">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-legal-gold/40 bg-legal-shell shadow-card">
-              <img src={logoMark} alt="Lex Corporativo" className="h-full w-full rounded-xl object-contain" />
-            </span>
-            <div>
-              <span className="inline-flex items-center gap-1 rounded-full border border-legal-gold/40 bg-legal-gold/10 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-amber-300">
-                <Sparkles size={10} /> Edición Pro Móvil
-              </span>
-              <h2 id="pro-access-title" className="font-serif text-sm sm:text-base font-bold text-white leading-tight">
-                {featureName ?? 'Funciones Pro con IA'}
-              </h2>
+    <AccessibleDialog isOpen={isOpen} onClose={close} label="Configuración de IA y clave BYOK"
+      className="fixed inset-0 z-[110] flex items-end justify-center bg-slate-950/70 sm:items-center">
+      <section className="flex max-h-[92dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-slate-700 bg-slate-900 text-white shadow-dialog sm:rounded-2xl">
+        <header className="flex items-center justify-between border-b border-slate-700 p-4">
+          <h2 className="font-serif text-lg font-bold">Configuración de IA {featureName ? `· ${featureName}` : ''}</h2>
+          <button type="button" onClick={close} aria-label="Cerrar configuración" className="min-h-11 min-w-11 p-3"><X size={18} /></button>
+        </header>
+        <div className="space-y-4 overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-sm">
+          <p>Conecta tu propia clave de Gemini (BYOK). Puedes probarla, guardarla, reemplazarla o eliminarla sin comprar ni activar una licencia.</p>
+          <p>La clave, la consulta y los artículos recuperados se envían directamente a Google al usar IA. El fragmento adicional del documento solo se envía si lo autorizas en el fundamentador. La prueba envía únicamente la clave y un mensaje genérico, sin documentos.</p>
+          <p>La clave se guarda en este navegador con <strong>ofuscación local, NO cifrado</strong>. Otros scripts o personas con acceso al dispositivo pueden recuperarla. Google aplica sus propias condiciones, cuotas y posibles cargos.</p>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 text-amber-300 underline">
+            Obtener una clave en Google AI Studio <ExternalLink size={14} />
+          </a>
+          <p className="text-xs text-slate-300">Modelo: {GEMINI_MODEL} (alias actualizado por Google; puede cambiar de versión).</p>
+          <p role="status">{loading ? 'Cargando configuración…' : storedKey ? 'Hay una clave guardada en este dispositivo.' : 'No hay una clave guardada.'}</p>
+          <form onSubmit={(event) => { event.preventDefault(); void act('save'); }} className="space-y-3">
+            <label htmlFor="pro-byok-key" className="block font-bold">{storedKey ? 'Nueva clave para reemplazar la guardada' : 'Tu API key de Gemini'}</label>
+            <input id="pro-byok-key" type="password" autoCapitalize="off" autoCorrect="off" autoComplete="off" spellCheck={false}
+              value={apiKey} disabled={loading || !!busy} onChange={(event) => { setApiKey(event.target.value); setStatus(''); setError(''); }}
+              className="w-full rounded-xl border border-slate-600 bg-slate-950 px-3 py-3 text-base" />
+            {!online && <p role="status">Sin conexión. Puedes guardar o eliminar la clave; la prueba requiere Internet.</p>}
+            {error && <p role="alert" className="text-red-300">{error}</p>}
+            {status && <p role="status" className="text-emerald-300">{status}</p>}
+            <div className="flex flex-wrap gap-2">
+              <button type="button" disabled={loading || !!busy || !online} onClick={() => void act('test')} className="min-h-11 rounded-xl border px-3 disabled:opacity-50">Probar conexión</button>
+              <button type="submit" disabled={loading || !!busy} className="min-h-11 rounded-xl bg-amber-300 px-3 font-bold text-slate-950 disabled:opacity-50">{storedKey ? 'Guardar reemplazo' : 'Guardar clave'}</button>
+              <button type="button" disabled={loading || !!busy || !storedKey} onClick={() => void act('delete')} className="min-h-11 rounded-xl border px-3 disabled:opacity-50">Eliminar clave</button>
+              {busy === 'test' && <button type="button" onClick={() => { request.current?.abort(); setBusy(null); setStatus('Prueba cancelada.'); }} className="min-h-11 rounded-xl border px-3">Cancelar prueba</button>}
             </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition active:scale-95"
-            aria-label="Cerrar"
-          >
-            <X size={18} />
-          </button>
+          </form>
+          <section className="rounded-xl border border-slate-700 p-3 text-xs text-slate-300">
+            <h3 className="mb-1 font-bold">Licencia independiente de la IA</h3>
+            <p>{session?.method === 'license' ? 'Se conserva tu sesión de licencia local heredada; no equivale a una compra verificada.' : session?.method === 'byok' ? 'Se conserva un registro BYOK heredado; no es una licencia de pago.' : 'No hay una licencia registrada.'}</p>
+            <p>No hay verificación de compras disponible en esta edición. Una licencia por sí sola no proporciona una clave ni acceso a Gemini.</p>
+          </section>
         </div>
-
-        {/* Body */}
-        <div className="overflow-y-auto p-4 sm:p-6 space-y-4">
-          {step === 'choose' && (
-            <>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                La versión PWA móvil es de <strong className="text-amber-300">pago único</strong> y
-                descargable desde la web. Activa tu acceso para usar el editor con IA y el
-                Fundamentador Jurídico RAG sobre el corpus federal.
-              </p>
-
-              <div className="grid grid-cols-1 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStep('license')}
-                  className="group flex items-center justify-between gap-3 rounded-2xl border border-legal-gold/40 bg-legal-gold/10 p-4 text-left transition hover:bg-legal-gold/15 active:scale-98"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-legal-gold text-slate-950">
-                      <KeyRound size={18} />
-                    </span>
-                    <div>
-                      <strong className="block text-sm font-bold text-white">Tengo un código de licencia</strong>
-                      <span className="block text-[11px] text-slate-300">
-                        Activa la edición completa con el código de tu compra (pago único).
-                      </span>
-                    </div>
-                  </div>
-                  <BadgeCheck size={18} className="shrink-0 text-legal-gold" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setStep('byok')}
-                  className="group flex items-center justify-between gap-3 rounded-2xl border border-slate-700 bg-slate-950/60 p-4 text-left transition hover:border-slate-500 active:scale-98"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-blue-300">
-                      <ShieldCheck size={18} />
-                    </span>
-                    <div>
-                      <strong className="block text-sm font-bold text-white">Usar mi propia clave (BYOK)</strong>
-                      <span className="block text-[11px] text-slate-400">
-                        Conecta tu API key gratuita de Google AI Studio. Tus datos no salen del dispositivo.
-                      </span>
-                    </div>
-                  </div>
-                  <ExternalLink size={16} className="shrink-0 text-slate-500" />
-                </button>
-              </div>
-
-              <div className="flex items-start gap-2 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
-                <Smartphone size={15} className="mt-0.5 shrink-0 text-emerald-400" />
-                <p className="text-[11px] leading-relaxed text-slate-400">
-                  <strong className="text-slate-200">Instálala como app:</strong> desde el menú de tu
-                  navegador elige «Añadir a pantalla de inicio». Sin tiendas ni comisiones; todo se
-                  guarda localmente en tu teléfono.
-                </p>
-              </div>
-            </>
-          )}
-
-          {step === 'license' && (
-            <form onSubmit={handleActivateLicense} className="space-y-4">
-              <div>
-                <label htmlFor="pro-license-code" className="block text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Código de licencia
-                </label>
-                <input
-                  id="pro-license-code"
-                  type="text"
-                  inputMode="text"
-                  autoCapitalize="characters"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  autoComplete="off"
-                  placeholder="LEX-PRO-2026"
-                  value={licenseCode}
-                  onChange={(e) => setLicenseCode(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-base tracking-widest text-amber-200 placeholder:text-slate-600 focus:border-legal-gold focus:outline-none"
-                />
-                <p className="mt-2 text-[11px] text-slate-500">
-                  Lo encuentras en el comprobante de tu compra web. Se valida en tu dispositivo.
-                </p>
-              </div>
-
-              {error && (
-                <div role="alert" className="rounded-xl border border-red-500/40 bg-red-950/50 p-3 text-xs text-red-300">
-                  {error}
-                </div>
-              )}
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => { setStep('choose'); setError(''); }}
-                  className="rounded-xl border border-slate-700 px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-800 transition"
-                >
-                  Atrás
-                </button>
-                <button
-                  type="submit"
-                  disabled={busy}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-legal-gold px-4 py-3 text-sm font-bold text-slate-950 shadow-premium transition hover:bg-amber-400 active:scale-95 disabled:opacity-60"
-                >
-                  {busy ? <LoaderCircle size={16} className="animate-spin" /> : <Lock size={15} />}
-                  <span>Activar licencia</span>
-                </button>
-              </div>
-            </form>
-          )}
-
-          {step === 'byok' && (
-            <form onSubmit={handleSaveByok} className="space-y-4">
-              <ol className="space-y-2.5">
-                <li className="flex items-start gap-2.5 text-xs text-slate-300">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-legal-gold/20 text-[10px] font-black text-legal-gold">1</span>
-                  <span>
-                    Abre{' '}
-                    <a
-                      href="https://aistudio.google.com/app/apikey"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-bold text-amber-300 underline inline-flex items-center gap-0.5"
-                      onClick={() => trackEvent('pro_byok_ai_studio_click')}
-                    >
-                      Google AI Studio <ExternalLink size={11} />
-                    </a>{' '}
-                    y genera una API key gratuita.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-300">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-legal-gold/20 text-[10px] font-black text-legal-gold">2</span>
-                  <span>Pégala aquí. Se guarda solo en tu dispositivo (IndexedDB).</span>
-                </li>
-                <li className="flex items-start gap-2.5 text-xs text-slate-300">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-legal-gold/20 text-[10px] font-black text-legal-gold">3</span>
-                  <span>El Fundamentador IA llamará a Gemini directamente desde tu navegador.</span>
-                </li>
-              </ol>
-
-              <div>
-                <label htmlFor="pro-byok-key" className="block text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Tu API key de Gemini
-                </label>
-                <input
-                  id="pro-byok-key"
-                  type="password"
-                  inputMode="text"
-                  autoCapitalize="off"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  autoComplete="off"
-                  placeholder="AIza…"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-base text-slate-100 placeholder:text-slate-600 focus:border-legal-gold focus:outline-none"
-                />
-              </div>
-
-              {error && (
-                <div role="alert" className="rounded-xl border border-red-500/40 bg-red-950/50 p-3 text-xs text-red-300">
-                  {error}
-                </div>
-              )}
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => { setStep('choose'); setError(''); }}
-                  className="rounded-xl border border-slate-700 px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-800 transition"
-                >
-                  Atrás
-                </button>
-                <button
-                  type="submit"
-                  disabled={busy}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-legal-gold px-4 py-3 text-sm font-bold text-slate-950 shadow-premium transition hover:bg-amber-400 active:scale-95 disabled:opacity-60"
-                >
-                  {busy ? <LoaderCircle size={16} className="animate-spin" /> : <CheckCircle2 size={15} />}
-                  <span>Guardar y activar</span>
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="border-t border-slate-800 bg-slate-950 px-4 py-3 sm:px-6 flex items-center justify-between text-[10px] font-bold">
-          <span className="flex items-center gap-1.5 text-emerald-400">
-            <ShieldCheck size={12} /> Cero telemetría de contenido
-          </span>
-          <span className="text-slate-500">Pago único · Sin suscripción</span>
-        </div>
-      </div>
-    </div>
+      </section>
+    </AccessibleDialog>
   );
 }

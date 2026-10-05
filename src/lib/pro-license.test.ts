@@ -10,8 +10,18 @@ import {
   normalizeLicenseCode,
   obfuscateSecret,
   revealSecret,
+  removeByokApiKey,
   saveByokApiKey,
 } from './pro-license';
+import { openDB } from 'idb';
+
+async function storeLegacySession(method: 'license' | 'byok') {
+  const db = await openDB('lex-corporativo-pro', 1);
+  const session = { method, activatedAt: '2026-01-01T00:00:00.000Z' };
+  await db.put('pro', JSON.stringify(session), 'pro-session');
+  db.close();
+  return session;
+}
 
 describe('pro-license', () => {
   beforeEach(async () => {
@@ -27,9 +37,9 @@ describe('pro-license', () => {
     expect(isLicenseCodeFormat('ab')).toBe(false);
   });
 
-  it('reconoce códigos vigentes', () => {
-    expect(isValidLicenseCode('LEX-PRO-2026')).toBe(true);
-    expect(isValidLicenseCode('LEX-MOVIL-PRO')).toBe(true);
+  it('no acepta códigos públicos como prueba de compra', () => {
+    expect(isValidLicenseCode('LEX-PRO-2026')).toBe(false);
+    expect(isValidLicenseCode('LEX-MOVIL-PRO')).toBe(false);
     expect(isValidLicenseCode('OTRA-COSA-123')).toBe(false);
   });
 
@@ -46,11 +56,10 @@ describe('pro-license', () => {
     expect(revealSecret(obfuscated)).toBe(secret);
   });
 
-  it('activa sesión Pro con licencia válida', async () => {
-    const session = await activateWithLicenseCode('lex-pro-2026');
-    expect(session.method).toBe('license');
-    expect(await isProUnlocked()).toBe(true);
-    expect((await getProSession())?.method).toBe('license');
+  it('no activa licencias sin un verificador de compras', async () => {
+    await expect(activateWithLicenseCode('lex-pro-2026')).rejects.toThrow(/verificación de compras/);
+    expect(await isProUnlocked()).toBe(false);
+    expect(await getProSession()).toBeNull();
   });
 
   it('rechaza licencias inválidas', async () => {
@@ -60,10 +69,38 @@ describe('pro-license', () => {
 
   it('guarda y recupera la clave BYOK', async () => {
     const key = 'AIzaSyDUMMYDUMMYDUMMYDUMMY12345';
-    const session = await saveByokApiKey(key);
-    expect(session.method).toBe('byok');
+    await saveByokApiKey(key);
     expect(await getByokApiKey()).toBe(key);
+    expect(await isProUnlocked()).toBe(false);
+    expect(await getProSession()).toBeNull();
+  });
+
+  it('guardar, reemplazar y eliminar clave preserva la licencia heredada', async () => {
+    const session = await storeLegacySession('license');
+    await saveByokApiKey('test-key-placeholder-123456789');
+    await saveByokApiKey('replacement-placeholder-987654321');
+    expect(await getByokApiKey()).toBe('replacement-placeholder-987654321');
+    expect(await getProSession()).toEqual(session);
+    await removeByokApiKey();
+    expect(await getByokApiKey()).toBeNull();
+    expect(await getProSession()).toEqual(session);
     expect(await isProUnlocked()).toBe(true);
+  });
+
+  it('preserva registros BYOK heredados sin convertirlos en licencias pagadas', async () => {
+    const session = await storeLegacySession('byok');
+    await saveByokApiKey('test-key-placeholder-123456789');
+    await removeByokApiKey();
+    expect(await getProSession()).toEqual(session);
+    expect(await isProUnlocked()).toBe(false);
+  });
+
+  it('no pierde clave ni licencia por un reemplazo inválido', async () => {
+    const session = await storeLegacySession('license');
+    await saveByokApiKey('test-key-placeholder-123456789');
+    await expect(saveByokApiKey('short')).rejects.toThrow();
+    expect(await getByokApiKey()).toBe('test-key-placeholder-123456789');
+    expect(await getProSession()).toEqual(session);
   });
 
   it('rechaza claves BYOK con formato inválido', async () => {

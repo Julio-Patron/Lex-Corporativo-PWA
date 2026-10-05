@@ -3,9 +3,25 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { legalTemplatePrecompiler } from './scripts/template-precompiler.ts';
+import { createHash } from 'node:crypto';
+import { readFileSync, readdirSync } from 'node:fs';
+
+const offlinePaths = [
+  ...readdirSync(new URL('./public/corpus/', import.meta.url)).filter(file => file.endsWith('.json')).sort().map(file => `/corpus/${file}`),
+  '/wasm/sql-wasm.wasm',
+];
+const offlineAssets = offlinePaths.map(path => {
+  const content = readFileSync(new URL(`./public${path}`, import.meta.url));
+  return { path, bytes: content.byteLength, sha256: createHash('sha256').update(content).digest('hex') };
+});
+const offlineManifest = {
+  version: createHash('sha256').update(JSON.stringify(offlineAssets)).digest('hex'),
+  assets: offlineAssets,
+};
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: { __OFFLINE_CORPUS_MANIFEST__: JSON.stringify(offlineManifest) },
   plugins: [
     legalTemplatePrecompiler(),
     react(),
@@ -23,21 +39,20 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'any',
         scope: '/',
-        start_url: '/',
+        id: '/',
+        start_url: '/?tab=estudio',
         icons: [
           {
             src: '/favicon.png',
-            sizes: '192x192',
+            sizes: '640x640',
             type: 'image/png',
-          },
-          {
-            src: '/favicon.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable',
           },
         ],
         categories: ['productivity', 'reference', 'legal'],
+        shortcuts: [{
+          name: 'Editor jurídico', short_name: 'Editor', url: '/?tab=estudio',
+          icons: [{ src: '/favicon.png', sizes: '640x640', type: 'image/png' }],
+        }],
         screenshots: [],
       },
       workbox: {

@@ -6,22 +6,18 @@ import { CoverageSourcesSheet } from './CoverageSourcesSheet';
 import { SearchInfoSheet } from './SearchInfoSheet';
 import { useUiStore } from '../store/useUiStore';
 import type { AppModuleTab } from '../types';
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
+import type { PwaInstallation } from '../lib/use-pwa-install';
 
 interface AppShellProps {
   activeTab: AppModuleTab;
   onTabChange: (tab: AppModuleTab) => void;
   onGoHome: () => void;
   children: ReactNode;
+  installation?: PwaInstallation;
 }
 
-export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShellProps) {
+export function AppShell({ activeTab, onTabChange, onGoHome, children, installation }: AppShellProps) {
   const { notifications, dismissNotification, setIsOnline } = useUiStore();
-  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [panel, setPanel] = useState<'coverage' | 'info' | null>(null);
 
   useEffect(() => {
@@ -38,27 +34,6 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
       window.removeEventListener('offline', offline);
     };
   }, [setIsOnline]);
-
-  useEffect(() => {
-    const beforeInstall = (event: Event) => {
-      event.preventDefault();
-      setInstallPrompt(event as BeforeInstallPromptEvent);
-    };
-    const installed = () => setInstallPrompt(null);
-    window.addEventListener('beforeinstallprompt', beforeInstall);
-    window.addEventListener('appinstalled', installed);
-    return () => {
-      window.removeEventListener('beforeinstallprompt', beforeInstall);
-      window.removeEventListener('appinstalled', installed);
-    };
-  }, []);
-
-  const install = async () => {
-    if (!installPrompt) return;
-    await installPrompt.prompt();
-    await installPrompt.userChoice;
-    setInstallPrompt(null);
-  };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -225,7 +200,7 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
       </div>
 
       {/* PWA Install Prompt */}
-      {installPrompt && (
+      {installation?.available && !installation.dismissed && activeTab !== 'estudio' && (
         <div
           className="fixed bottom-20 sm:bottom-4 left-3 right-3 z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950 p-4 text-white shadow-dialog animate-slideUp"
           style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
@@ -236,18 +211,19 @@ export function AppShell({ activeTab, onTabChange, onGoHome, children }: AppShel
             className="h-10 w-10 shrink-0 rounded-xl border border-legal-gold/20 object-cover"
           />
           <p className="flex-1 text-xs font-medium leading-5">
-            Instala Lex Corporativo para acceder sin conexión a legislación federal y licitaciones.
+            Instala Lex Corporativo. Descarga las leyes desde Ajustes del editor para consultarlas sin conexión. IA y licitaciones requieren internet.
           </p>
           <button
             type="button"
-            onClick={install}
+            onClick={() => void installation.install()}
+            disabled={installation.busy}
             className="min-h-10 rounded-xl bg-legal-gold px-4 text-xs font-bold text-slate-950 hover:bg-legal-goldhover active:scale-95 transition"
           >
             Instalar
           </button>
           <button
             type="button"
-            onClick={() => setInstallPrompt(null)}
+            onClick={installation.dismiss}
             className="flex min-h-10 min-w-10 items-center justify-center text-slate-400 active:scale-95 transition"
             aria-label="Cerrar"
           >

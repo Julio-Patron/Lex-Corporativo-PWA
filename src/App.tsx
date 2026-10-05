@@ -8,6 +8,7 @@ import { Introduction } from './components/Introduction';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { trackEvent, sanitizeAnalyticsUrl } from './lib/analytics';
 import { updateSeoMeta } from './lib/seo';
+import { usePwaInstall } from './lib/use-pwa-install';
 import type { AppModuleTab } from './types';
 
 const DesktopPresentation = lazy(() =>
@@ -32,6 +33,7 @@ function readNavigation() {
 }
 
 export function App() {
+  const installation = usePwaInstall();
   const [initialNavigation] = useState(readNavigation);
   const [stationOpened, setStationOpened] = useState(initialNavigation.stationOpened);
   const [activeTab, setActiveTab] = useState<AppModuleTab>(initialNavigation.activeTab);
@@ -126,7 +128,7 @@ export function App() {
       {!stationOpened ? (
         <Introduction onOpenStation={handleOpenStation} />
       ) : (
-        <AppShell activeTab={activeTab} onTabChange={handleTabChange} onGoHome={handleGoHome}>
+        <AppShell activeTab={activeTab} onTabChange={handleTabChange} onGoHome={handleGoHome} installation={installation}>
           {activeTab === 'normativa' ? (
             <BuscadorLegal />
           ) : activeTab === 'licitaciones' ? (
@@ -146,6 +148,7 @@ export function App() {
                 registerBeforeLeave={registerBeforeLeave}
                 onNavigateToDesktop={() => handleTabChange('desktop')}
                 onGoHome={handleGoHome}
+                installation={installation}
               />
             </Suspense>
           ) : (

@@ -67,7 +67,8 @@ describe('AssistantFundamentadorDrawer', () => {
     // El resultado debe mostrarse
     const articleTitle = await screen.findByText('Art. 1');
     expect(articleTitle).toBeInTheDocument();
-    expect(screen.getByText(/Las personas físicas y las morales/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Las personas físicas y las morales/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole('link', { name: 'Fuente oficial' })).toHaveAttribute('href', 'https://dof.gob.mx');
 
     // Botón de nota al pie
     const footnoteBtn = screen.getByRole('button', { name: /Nota al Pie/i });
@@ -76,5 +77,28 @@ describe('AssistantFundamentadorDrawer', () => {
     });
 
     expect(onInsertFootnote).toHaveBeenCalledWith(mockArticles[0]);
+  });
+
+  it('la generación IA es explícita y conserva la consulta; Escape cierra', () => {
+    const onGenerateAi = vi.fn();
+    const onClose = vi.fn();
+    render(<AssistantFundamentadorDrawer isOpen onClose={onClose} citations={[]}
+      onInsertFootnote={vi.fn()} onInsertBlockquote={vi.fn()} onAddCitation={vi.fn()} onGenerateAi={onGenerateAi} />);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'despido' } });
+    expect(onGenerateAi).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Fundamentar con IA BYOK' }));
+    expect(onGenerateAi).toHaveBeenCalledWith('despido');
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('informa cómo recuperar la consulta cuando falta la descarga offline', async () => {
+    vi.mocked(corpusService.executeCorpusSearch).mockRejectedValueOnce(new Error('offline'));
+    render(<AssistantFundamentadorDrawer isOpen onClose={vi.fn()} citations={[]}
+      onInsertFootnote={vi.fn()} onInsertBlockquote={vi.fn()} onAddCitation={vi.fn()} />);
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'despido' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Consultar' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('descarga las leyes desde Ajustes');
+    expect(screen.queryByRole('link', { name: 'Fuente oficial' })).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,6 @@
 import { BubbleMenu } from '@tiptap/react/menus';
 import type { Editor } from '@tiptap/react';
-import { Bold, Heading2, Italic, List, Lock } from 'lucide-react';
+import { Bold, BookOpen, Heading2, Italic, List } from 'lucide-react';
 
 interface EditorBubbleMenuProps {
   editor: Editor | null;
@@ -25,7 +25,7 @@ export function EditorBubbleMenu({ editor, onFundamentar }: EditorBubbleMenuProp
         const text = doc.textBetween(from, to, ' ').trim();
         return isTextSelection && text.length > 1;
       }}
-      className="flex items-center gap-1 rounded-2xl border border-slate-800 bg-slate-950/95 p-1.5 text-white shadow-dialog backdrop-blur-md"
+      className="mobile-editor-bubble flex max-w-[calc(100vw-1rem)] items-center gap-1 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950/95 p-1.5 text-white shadow-dialog backdrop-blur-md"
     >
       <button
         type="button"
@@ -39,12 +39,12 @@ export function EditorBubbleMenu({ editor, onFundamentar }: EditorBubbleMenuProp
           }
         }}
         className="flex min-h-9 items-center gap-1.5 rounded-xl bg-legal-gold/20 px-3 text-xs font-bold text-legal-gold transition hover:bg-legal-gold/30 active:scale-95 cursor-pointer"
-        title="Fundamentación y Citas (Exclusivo de Lex Corporativo Desktop)"
+        title="Fundamentar texto seleccionado"
       >
-        <Lock size={12} className="text-legal-gold" />
+        <BookOpen size={12} className="text-legal-gold" />
         <span>Fundamentar</span>
         <span className="rounded bg-legal-gold/20 px-1 py-px text-[9px] font-bold uppercase text-legal-gold">
-          Desktop
+          Local
         </span>
       </button>
 

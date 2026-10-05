@@ -20,7 +20,7 @@ describe('DraftingStudio Component', () => {
     expect(screen.getByTitle('Ver borradores locales')).toBeInTheDocument();
     expect(screen.getByTitle('Importar DOCX, PDF o TXT')).toBeInTheDocument();
     expect(screen.getByTitle('Auditoría Contractual (Exclusivo de Lex Corporativo Desktop)')).toBeInTheDocument();
-    expect(screen.getByTitle('Fundamentación y Citas (Exclusivo de Lex Corporativo Desktop)')).toBeInTheDocument();
+    expect(screen.getByTitle('Consultar fundamentos y citas')).toBeInTheDocument();
   });
 
   it('abre automáticamente el catálogo de instrumentos al ingresar y permite filtrar por materia', async () => {
@@ -43,18 +43,22 @@ describe('DraftingStudio Component', () => {
     expect(within(dialog).getByPlaceholderText(/Buscar por contrato, pagaré/i)).toBeInTheDocument();
   });
 
-  it('bloquea el modo Fundamentar y muestra el modal exclusivo de Desktop', async () => {
+  it('abre la consulta local sin exigir licencia ni clave BYOK', async () => {
     await act(async () => {
       render(<DraftingStudio />);
     });
 
-    const fundBtn = screen.getByTitle('Fundamentación y Citas (Exclusivo de Lex Corporativo Desktop)');
+    const closeCatalog = screen.queryByLabelText('Cerrar catálogo');
+    if (closeCatalog) fireEvent.click(closeCatalog);
+    const fundBtn = screen.getByTitle('Consultar fundamentos y citas');
     await act(async () => {
       fireEvent.click(fundBtn);
     });
 
-    expect(screen.getByRole('heading', { name: /Motor de Fundamentación y Citas en Vivo/i })).toBeInTheDocument();
-    expect(screen.getByText(/Exclusivo de Lex Desktop/i)).toBeInTheDocument();
+    const drawer = await screen.findByRole('dialog', { name: 'Asistente de Fundamentación Legal' });
+    expect(within(drawer).getByText('Búsqueda local · Sin clave ni generación IA')).toBeInTheDocument();
+    expect(within(drawer).getByRole('button', { name: 'Fundamentar con IA BYOK' })).toBeInTheDocument();
+    expect(screen.queryByText(/Exclusivo de Lex Desktop/i)).not.toBeInTheDocument();
   });
 
   it('bloquea el modo Auditar y muestra el modal exclusivo de Desktop', async () => {

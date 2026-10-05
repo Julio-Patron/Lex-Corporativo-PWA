@@ -19,9 +19,6 @@ const LICENSE_KEY = 'license-code';
 const BYOK_KEY = 'byok-api-key';
 const SESSION_KEY = 'pro-session';
 
-/** Códigos de licencia válidos de la edición Pro Móvil (pago único vía web). */
-const VALID_LICENSE_CODES = new Set(['LEX-PRO-2026', 'LEX-MOVIL-PRO']);
-
 function hasStorage(): boolean {
   return typeof indexedDB !== 'undefined';
 }
@@ -52,7 +49,7 @@ async function idbDelete(key: string): Promise<void> {
   try { await db.delete('pro', key); } finally { db.close(); }
 }
 
-/** Ofuscación simétrica ligera (XOR + base64) para no guardar secretos en claro. */
+/** Ofuscación reversible, NO cifrado: no protege contra acceso al dispositivo o scripts. */
 export function obfuscateSecret(value: string): string {
   const salt = 'lex-corporativo-pwa';
   const xored = Array.from(value).map((ch, i) =>
@@ -85,8 +82,9 @@ export function isLicenseCodeFormat(raw: string): boolean {
   return /^[A-Z0-9][A-Z0-9-]{5,31}$/.test(normalizeLicenseCode(raw));
 }
 
-export function isValidLicenseCode(raw: string): boolean {
-  return VALID_LICENSE_CODES.has(normalizeLicenseCode(raw));
+export function isValidLicenseCode(_raw: string): boolean {
+  // No hay un servicio de verificación de compras en esta edición.
+  return false;
 }
 
 export function isLikelyGeminiApiKey(raw: string): boolean {
@@ -94,34 +92,26 @@ export function isLikelyGeminiApiKey(raw: string): boolean {
   return key.length >= 20 && /^[A-Za-z0-9_-]+$/.test(key);
 }
 
-async function persistSession(session: ProSession): Promise<void> {
-  await idbSet(SESSION_KEY, JSON.stringify(session));
-}
-
 export async function activateWithLicenseCode(rawCode: string): Promise<ProSession> {
   const code = normalizeLicenseCode(rawCode);
   if (!isLicenseCodeFormat(code)) {
     throw new Error('El código debe tener entre 6 y 32 caracteres alfanuméricos.');
   }
-  if (!isValidLicenseCode(code)) {
-    throw new Error('Código de licencia no reconocido. Verifica tu comprobante de compra.');
-  }
-  await idbSet(LICENSE_KEY, obfuscateSecret(code));
-  const session: ProSession = { method: 'license', activatedAt: new Date().toISOString() };
-  await persistSession(session);
-  return session;
+  throw new Error('La verificación de compras no está disponible. No se activó ninguna licencia. La IA requiere una clave propia de Gemini.');
 }
 
-/** Guarda la clave BYOK del usuario localmente (nunca sale del dispositivo salvo a la API de Google). */
-export async function saveByokApiKey(rawKey: string): Promise<ProSession> {
+/** Guarda solo la clave, sin crear, reemplazar ni verificar una licencia. */
+export async function saveByokApiKey(rawKey: string): Promise<void> {
   const key = rawKey.trim();
   if (!isLikelyGeminiApiKey(key)) {
     throw new Error('La clave no parece válida. Debe ser la API key de Google AI Studio.');
   }
   await idbSet(BYOK_KEY, obfuscateSecret(key));
-  const session: ProSession = { method: 'byok', activatedAt: new Date().toISOString() };
-  await persistSession(session);
-  return session;
+}
+
+/** Eliminar la clave no altera la sesión de licencia heredada. */
+export async function removeByokApiKey(): Promise<void> {
+  await idbDelete(BYOK_KEY);
 }
 
 export async function getByokApiKey(): Promise<string | null> {
@@ -140,14 +130,16 @@ export async function getProSession(): Promise<ProSession | null> {
     const raw = await idbGet(SESSION_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as ProSession;
-    return parsed && (parsed.method === 'license' || parsed.method === 'byok') ? parsed : null;
+    return parsed && (parsed.method === 'license' || parsed.method === 'byok')
+      && typeof parsed.activatedAt === 'string' ? parsed : null;
   } catch {
     return null;
   }
 }
 
 export async function isProUnlocked(): Promise<boolean> {
-  return (await getProSession()) !== null;
+  // Compatibilidad con acceso local heredado; no acredita una compra verificada.
+  return (await getProSession())?.method === 'license';
 }
 
 export async function clearProAccess(): Promise<void> {

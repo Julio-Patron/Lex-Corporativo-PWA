@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { renderLegalTemplate } from '../lib/template-renderer';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -42,7 +42,9 @@ import { MobileEditorToolbar } from './studio/MobileEditorToolbar';
 import { FootnotesAppendix } from './studio/FootnotesAppendix';
 import { DesktopFeatureLockModal, type LockedFeatureType } from './studio/DesktopFeatureLockModal';
 import { ProAccessModal } from './pro/ProAccessModal';
-import { isProUnlocked } from '../lib/pro-license';
+import { OfflineCorpusSettings } from './OfflineCorpusSettings';
+import { shareDocumentCopy } from '../lib/share-document';
+import type { PwaInstallation } from '../lib/use-pwa-install';
 import type {
   LegalArticle,
   LegalTemplate,
@@ -73,9 +75,10 @@ export interface DraftingStudioProps {
   registerBeforeLeave?: (guard: (() => Promise<boolean>) | null) => void;
   session?: StudioSession;
   onGoHome?: () => void;
+  installation?: PwaInstallation;
 }
 
-export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoHome, session = getStudioSession() }: DraftingStudioProps = {}) {
+export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoHome, installation, session = getStudioSession() }: DraftingStudioProps = {}) {
   const { notify } = useUiStore();
   const fileInput = useRef<HTMLInputElement>(null);
   const exportDetailsRef = useRef<HTMLDetailsElement>(null);
@@ -102,23 +105,8 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
   const [showMobileCatalogPrompt, setShowMobileCatalogPrompt] = useState(false);
   const [showProAccessModal, setShowProAccessModal] = useState(false);
   const [showFundamentadorAi, setShowFundamentadorAi] = useState(false);
-  const [isPro, setIsPro] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    void isProUnlocked().then((value) => { if (active) setIsPro(value); });
-    return () => { active = false; };
-  }, [showProAccessModal]);
-
-  /** Abre el Fundamentador: IA+BYOK si es Pro; si no, el paywall de activación. */
-  function openFundamentador(query = '') {
-    setAssistantQuery(query);
-    if (isPro) {
-      setShowFundamentadorAi(true);
-    } else {
-      setShowProAccessModal(true);
-    }
-  }
+  const [showEditorSettings, setShowEditorSettings] = useState(false);
+  const insertionPoint = useRef<{ documentId: string; position: number } | null>(null);
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -137,6 +125,14 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
       }));
     },
   });
+
+  const openFundamentador = useCallback((query?: string) => {
+    if (!editor) return;
+    const { from, to } = editor.state.selection;
+    insertionPoint.current = { documentId: session.getSnapshot().document.id, position: to };
+    setAssistantQuery(query ?? editor.state.doc.textBetween(from, to, ' ').trim());
+    setShowAssistantDrawer(true);
+  }, [editor, session]);
 
   useEffect(() => {
     let active = true;
@@ -245,7 +241,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [session, notify]);
+  }, [session, notify, openFundamentador]);
 
   async function applyTemplateVariables(template: LegalTemplate, data: Record<string, string>, copy = false) {
     try {
@@ -369,24 +365,29 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
   async function shareDocument() {
     if (!editor) return;
     const text = documentExportText(editor.getText({ blockSeparator: '\n\n' }), currentDocument.citations);
-    const shareData = {
-      title: currentDocument.title,
-      text: `${currentDocument.title}\n\n${text}\n\n---\nGenerado en Lex Corporativo · Ingeniería Jurídica`,
-    };
-    if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-      try {
-        await navigator.share(shareData);
-        notify('Documento compartido.', 'success');
-      } catch (err) {
-        if ((err as Error).name !== 'AbortError') {
-          await navigator.clipboard.writeText(shareData.text);
-          notify('Texto del documento copiado al portapapeles.', 'success');
-        }
+    try {
+      const outcome = await shareDocumentCopy(currentDocument.title, text);
+      if (outcome !== 'cancelled') {
+        notify({ shared: 'Documento compartido.', copied: 'Texto copiado al portapapeles.', downloaded: 'Copia TXT descargada.' }[outcome], 'success');
       }
-    } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      await navigator.clipboard.writeText(shareData.text);
-      notify('Texto del documento copiado al portapapeles.', 'success');
+    } catch {
+      notify('No fue posible compartir. Usa Exportar para guardar una copia.', 'error');
     }
+  }
+
+  function prepareInsertion() {
+    if (!editor || !editor.isEditable || session.getSnapshot().locked || session.getSnapshot().transitioning) return false;
+    const point = insertionPoint.current;
+    if (point && point.documentId !== session.getSnapshot().document.id) {
+      notify('El documento cambió. Vuelve a abrir el fundamentador.', 'info');
+      return false;
+    }
+    if (point) editor.commands.setTextSelection(Math.min(point.position, editor.state.doc.content.size));
+    return true;
+  }
+
+  function rememberInsertion() {
+    if (editor) insertionPoint.current = { documentId: currentDocument.id, position: editor.state.selection.to };
   }
 
   function addCitation(article: LegalArticle) {
@@ -397,6 +398,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
   }
 
   function insertFootnote(article: LegalArticle) {
+    if (!prepareInsertion()) return;
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(10);
     }
@@ -408,25 +410,30 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
 
     const footnoteNumber = citationIndex + 1;
     editor?.chain().focus().insertContent(` <sup>[${footnoteNumber}]</sup> `).run();
+    rememberInsertion();
     notify(`Nota al pie [${footnoteNumber}] insertada y vinculada al apéndice.`, 'success');
   }
 
   function insertBlockquote(article: LegalArticle) {
+    if (!prepareInsertion()) return;
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(10);
     }
     editor?.chain().focus().insertContent(
       `<blockquote><p><strong>${escapeHtml(article.lawName)}, ${escapeHtml(article.articleNumber)}.</strong> ${escapeHtml(article.content)}</p><p>Fuente oficial: <a href="${escapeHtml(article.sourceUrl)}">${escapeHtml(article.sourceName)}</a></p></blockquote>`,
     ).run();
+    rememberInsertion();
     addCitation(article);
     notify('Cita textual en bloque insertada.', 'success');
   }
 
   function insertAnalysis(text: string) {
+    if (!prepareInsertion()) return;
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       navigator.vibrate(10);
     }
     editor?.chain().focus().insertContent(textToHtml(text)).run();
+    rememberInsertion();
     notify('Fundamentación insertada en el documento.', 'success');
   }
 
@@ -457,7 +464,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
   }, [editor, currentDocument.editorHtml]);
 
   return (
-    <div className="flex min-h-[calc(100vh-64px)] flex-col bg-slate-100/70 text-slate-950">
+    <div className="mobile-studio flex min-h-[calc(100dvh-64px)] flex-col bg-slate-100/70 text-slate-950">
       {/* Top Main Navigation Bar */}
       {/* Top Main Navigation Bar - Franja azul al mismo nivel de Ingeniería Jurídica */}
       <section className="sticky top-0 z-40 border-b border-slate-800 bg-legal-shell text-white shadow-premium">
@@ -590,13 +597,6 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
                   )}
                 </button>
 
-                <input
-                  ref={fileInput}
-                  className="hidden"
-                  type="file"
-                  accept=".docx,.txt,.pdf,text/plain,application/pdf"
-                  onChange={(event) => handleImport(event.target.files?.[0])}
-                />
                 <button
                   type="button"
                   onClick={() => fileInput.current?.click()}
@@ -638,17 +638,17 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
 
                 <button
                   type="button"
-                  onClick={() => setLockedFeatureModal('fundamentar')}
+                  onClick={() => openFundamentador()}
                   className="studio-action !border-slate-800 !bg-slate-900/60 hover:!border-slate-700 !text-slate-400 hover:!text-slate-200 gap-1.5 active:scale-95 transition"
-                  title="Fundamentación y Citas (Exclusivo de Lex Corporativo Desktop)"
+                  title="Consultar fundamentos y citas"
                 >
-                  <Lock size={12} className="text-slate-500" />
+                  <BookOpen size={12} className="text-legal-gold" />
                   <span>Fundamentar</span>
-                  <span className="rounded bg-slate-800 px-1 py-0.5 text-[8px] font-mono font-medium text-slate-400">
-                    EXE
-                  </span>
                 </button>
               </div>
+              <button type="button" onClick={() => setShowEditorSettings(true)} className="studio-action !text-white" aria-label="Ajustes del editor">
+                <SlidersHorizontal size={14} /> Ajustes
+              </button>
 
               {/* Export Menu */}
               <details ref={exportDetailsRef} className="relative shrink-0">
@@ -818,17 +818,23 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
                       type="button"
                       onClick={() => {
                         mobileMenuRef.current?.removeAttribute('open');
-                        setLockedFeatureModal('fundamentar');
+                        openFundamentador();
                       }}
                       className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs text-slate-300 hover:bg-slate-800 transition"
                     >
                       <span className="flex items-center gap-2">
-                        <Lock size={13} className="text-slate-400" />
+                        <BookOpen size={13} className="text-legal-gold" />
                         <span>Fundamentación</span>
                       </span>
                       <span className="rounded bg-slate-800 px-1.5 py-0.2 text-[8px] font-extrabold text-slate-400 uppercase">
-                        Desktop
+                        Local + IA
                       </span>
+                    </button>
+                    <button type="button" onClick={() => {
+                      mobileMenuRef.current?.removeAttribute('open');
+                      setShowEditorSettings(true);
+                    }} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2 text-slate-200 hover:bg-slate-800" aria-label="Ajustes del editor">
+                      <SlidersHorizontal size={14} /> Ajustes · BYOK y descarga
                     </button>
                   </div>
                 </details>
@@ -1102,6 +1108,11 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
             onInsertFootnote={insertFootnote}
             onInsertBlockquote={insertBlockquote}
             onAddCitation={addCitation}
+            onGenerateAi={(query) => {
+              setAssistantQuery(query);
+              setShowAssistantDrawer(false);
+              setShowFundamentadorAi(true);
+            }}
           />
         </Suspense>
       )}
@@ -1135,16 +1146,38 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
         onNavigateToDesktop={onNavigateToDesktop}
       />
 
-      {/* Paywall Pro Móvil (licencia o BYOK) */}
+      <AccessibleDialog isOpen={showEditorSettings} onClose={() => setShowEditorSettings(false)} label="Ajustes del editor"
+        className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/60 sm:items-center sm:p-4">
+        <section className="max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-slate-900 sm:rounded-2xl">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-bold">Ajustes del editor</h2>
+            <button type="button" onClick={() => setShowEditorSettings(false)} className="min-h-11 min-w-11" aria-label="Cerrar ajustes"><X size={20} /></button>
+          </div>
+          <button type="button" className="studio-primary mb-4 min-h-11" onClick={() => {
+            setShowEditorSettings(false);
+            setShowProAccessModal(true);
+          }}>Configurar IA BYOK</button>
+          <OfflineCorpusSettings />
+          <section className="mt-4 space-y-2 border-t border-slate-200 pt-4">
+            <h3 className="font-bold">Instalar el editor</h3>
+            {installation?.installed ? <p role="status">Abierto como aplicación instalada.</p> : (
+              <>
+                {installation?.available && <button type="button" className="studio-primary min-h-11" disabled={installation.busy} onClick={() => void installation.install()}>Instalar aplicación</button>}
+                <p className="text-sm">En Android, abre el menú del navegador y elige «Instalar aplicación». En iPhone/iPad, abre esta web en Safari, pulsa Compartir y «Añadir a pantalla de inicio».</p>
+              </>
+            )}
+            {installation?.error && <p role="alert">{installation.error}</p>}
+            <p className="text-sm">La aplicación instalada abre el editor. Descarga las leyes arriba para consultarlas sin conexión; la IA necesita internet.</p>
+          </section>
+          <p className="mt-4 text-sm">Los borradores se guardan en este navegador. Exporta copias de respaldo: borrar los datos del sitio elimina el almacenamiento local.</p>
+        </section>
+      </AccessibleDialog>
+
+      {/* Configuración BYOK independiente de la licencia comercial. */}
       <ProAccessModal
         isOpen={showProAccessModal}
         onClose={() => setShowProAccessModal(false)}
-        onActivated={() => {
-          setIsPro(true);
-          setShowProAccessModal(false);
-          setShowFundamentadorAi(true);
-        }}
-        featureName="Fundamentador Jurídico IA"
+        featureName="Configuración de IA BYOK"
       />
 
       {/* Fundamentador IA (Pro): RAG local + Gemini BYOK */}
@@ -1160,6 +1193,7 @@ export function DraftingStudio({ onNavigateToDesktop, registerBeforeLeave, onGoH
             onInsertBlockquote={insertBlockquote}
             onAddCitation={addCitation}
             onInsertAnalysis={insertAnalysis}
+            onConfigureKey={() => setShowProAccessModal(true)}
           />
         </Suspense>
       )}

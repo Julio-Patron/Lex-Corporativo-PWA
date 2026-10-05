@@ -1,5 +1,6 @@
 import initSqlJs, { type Database } from 'sql.js';
 import { getCorpusItem } from '../lib/corpus-catalog';
+import { offlineCorpus, WASM_ASSET_PATH } from '../lib/offline-corpus';
 import type { CorpusSearchScope, LegalArticle, LegalEngineeringArea } from '../types';
 
 const CORPUS_FILES: Array<{ file: string; area: LegalEngineeringArea }> = [
@@ -70,7 +71,11 @@ export function createCorpusEngine(options: { initialize?: typeof initSqlJs; fet
   function initialize(): Promise<Database> {
     if (!initPromise) {
       initPromise = (async () => {
-        const SQL = await (options.initialize ?? initSqlJs)({ locateFile: () => '/wasm/sql-wasm.wasm' });
+        const cachedWasm = await offlineCorpus.read(WASM_ASSET_PATH);
+        const SQL = await (options.initialize ?? initSqlJs)({
+          locateFile: () => WASM_ASSET_PATH,
+          ...(cachedWasm ? { wasmBinary: await cachedWasm.arrayBuffer() } : {}),
+        });
         const db = new SQL.Database();
         try {
           db.run(`CREATE TABLE provisions (
@@ -98,7 +103,8 @@ export function createCorpusEngine(options: { initialize?: typeof initSqlJs; fet
     const existing = areas.get(item.area);
     if (existing) return existing;
     const loading = (async () => {
-      const response = await (options.fetchCorpus ?? fetch)(item.file);
+      const response = options.fetchCorpus ? await options.fetchCorpus(item.file)
+        : await offlineCorpus.read(item.file) ?? await fetch(item.file);
       if (!response.ok) throw new Error(`No se pudo cargar ${item.file} (${response.status}). Reintenta la búsqueda.`);
       const articles = await response.json() as RawLegalArticle[];
       const nextPrepared = new Map<string, ReturnType<typeof prepareArticle>>();

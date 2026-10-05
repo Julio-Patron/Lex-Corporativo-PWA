@@ -1,4 +1,5 @@
 import type { Editor } from '@tiptap/react';
+import { useEffect, useState } from 'react';
 import {
   Bold,
   Heading2,
@@ -31,6 +32,21 @@ export function MobileEditorToolbar({
   hasVariables,
   variableCount = 0,
 }: MobileEditorToolbarProps) {
+  const [keyboardInset, setKeyboardInset] = useState(0);
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const update = () => setKeyboardInset(viewport.scale === 1 ? Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop) : 0);
+    update();
+    viewport.addEventListener('resize', update);
+    viewport.addEventListener('scroll', update);
+    window.addEventListener('resize', update);
+    return () => {
+      viewport.removeEventListener('resize', update);
+      viewport.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, []);
   if (!editor) return null;
 
   const vibrate = () => {
@@ -51,8 +67,8 @@ export function MobileEditorToolbar({
   return (
     <aside
       aria-label="Barra de herramientas móvil"
-      className="sm:hidden fixed left-0 right-0 z-20 border-t border-slate-200/90 bg-white/95 px-2 py-1.5 backdrop-blur-md shadow-card transition-all"
-      style={{ bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))' }}
+      className="mobile-editor-toolbar sm:hidden fixed left-0 right-0 z-35 border-t border-slate-200/90 bg-white/95 px-2 py-1.5 backdrop-blur-md shadow-card"
+      style={{ bottom: keyboardInset > 100 ? `${keyboardInset}px` : 'calc(56px + env(safe-area-inset-bottom, 0px))' }}
     >
       <div className="flex items-center justify-between gap-1">
         {/* Scrollable Action Strip */}
@@ -195,6 +211,7 @@ export function MobileEditorToolbar({
           {/* Legal Actions */}
           <button
             type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
               vibrate();
               onOpenAssistant();

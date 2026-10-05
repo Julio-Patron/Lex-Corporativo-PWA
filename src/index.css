@@ -1,5 +1,25 @@
 @import "tailwindcss";
 
+@media (max-width: 639px) {
+  :is(.mobile-studio, .mobile-fundamentador, .mobile-editor-bubble, .mobile-editor-toolbar) :is(button, summary, select) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  :is(.mobile-studio, .mobile-fundamentador) :is(input, textarea, select) {
+    font-size: 16px;
+  }
+
+  .mobile-editor-bubble button {
+    flex-shrink: 0;
+  }
+
+  .mobile-studio .studio-editor {
+    scroll-margin-block: 9rem;
+    padding-bottom: 4rem;
+  }
+}
+
 @font-face {
   font-family: 'Manrope Variable';
   font-style: normal;

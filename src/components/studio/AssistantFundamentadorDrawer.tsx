@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   BookOpen,
   CheckCircle2,
@@ -11,6 +11,7 @@ import {
   X,
 } from 'lucide-react';
 import { executeCorpusSearch } from '../../services/corpus-search';
+import { AccessibleDialog } from '../ui/AccessibleDialog';
 import type { CorpusSearchScope, LegalArticle, LegalCitation } from '../../types';
 
 interface AssistantFundamentadorDrawerProps {
@@ -21,6 +22,7 @@ interface AssistantFundamentadorDrawerProps {
   onInsertFootnote: (article: LegalArticle) => void;
   onInsertBlockquote: (article: LegalArticle) => void;
   onAddCitation: (article: LegalArticle) => void;
+  onGenerateAi?: (query: string) => void;
 }
 
 export function AssistantFundamentadorDrawer({
@@ -31,12 +33,14 @@ export function AssistantFundamentadorDrawer({
   onInsertFootnote,
   onInsertBlockquote,
   onAddCitation,
+  onGenerateAi,
 }: AssistantFundamentadorDrawerProps) {
   const [query, setQuery] = useState(initialQuery);
   const [scope, setScope] = useState<CorpusSearchScope>('todos');
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState('');
   const [results, setResults] = useState<LegalArticle[]>([]);
+  const requestId = useRef(0);
 
   useEffect(() => {
     if (initialQuery) {
@@ -45,19 +49,23 @@ export function AssistantFundamentadorDrawer({
     }
   }, [initialQuery]);
 
+  useEffect(() => () => { requestId.current += 1; }, []);
+
   if (!isOpen) return null;
 
   async function runSearch(searchQuery: string, searchScope: CorpusSearchScope) {
     if (!searchQuery.trim()) return;
+    const id = ++requestId.current;
     setSearching(true);
     setError('');
+    setResults([]);
     try {
       const res = await executeCorpusSearch({ query: searchQuery, scope: searchScope, limit: 6 });
-      setResults(res.articles);
+      if (id === requestId.current) setResults(res.articles);
     } catch {
-      setError('No fue posible consultar el corpus local.');
+      if (id === requestId.current) setError('No fue posible consultar el corpus. Conéctate o descarga las leyes desde Ajustes para consultarlas sin conexión.');
     } finally {
-      setSearching(false);
+      if (id === requestId.current) setSearching(false);
     }
   }
 
@@ -67,16 +75,13 @@ export function AssistantFundamentadorDrawer({
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Asistente de Fundamentación Legal"
+    <AccessibleDialog
+      isOpen={isOpen}
+      onClose={onClose}
+      label="Asistente de Fundamentación Legal"
       className="fixed inset-0 z-[70] flex items-end sm:items-stretch sm:justify-end bg-slate-950/30 backdrop-blur-xs animate-fadeIn"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
     >
-      <aside className="flex max-h-[88vh] sm:max-h-full h-auto sm:h-full w-full max-w-lg sm:max-w-md flex-col rounded-t-3xl sm:rounded-none bg-white shadow-2xl border-t sm:border-t-0 sm:border-l border-slate-200 animate-slideUp sm:animate-slideLeft">
+      <aside className="mobile-fundamentador flex max-h-[92dvh] sm:max-h-full h-auto sm:h-full w-full max-w-lg sm:max-w-md flex-col rounded-t-3xl sm:rounded-none bg-white shadow-2xl border-t sm:border-t-0 sm:border-l border-slate-200 animate-slideUp sm:animate-slideLeft pb-[env(safe-area-inset-bottom)]">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 bg-white p-4">
           <div className="flex items-center gap-2">
@@ -90,7 +95,7 @@ export function AssistantFundamentadorDrawer({
                   Ctrl+K
                 </kbd>
               </div>
-              <p className="text-[10px] text-slate-500">Consulta en vivo del corpus federal oficial</p>
+              <p className="text-xs text-slate-500">Búsqueda local · Sin clave ni generación IA</p>
             </div>
           </div>
           <button
@@ -140,11 +145,19 @@ export function AssistantFundamentadorDrawer({
             </button>
           </div>
         </form>
+        {onGenerateAi && (
+          <div className="border-b border-slate-200 px-4 py-3">
+            <button type="button" className="studio-primary min-h-11" onClick={() => onGenerateAi(query)}>
+              <Sparkles size={16} /> Fundamentar con IA BYOK
+            </button>
+            <p className="mt-2 text-xs text-slate-500">Opcional: envía tu consulta a Google. Requiere conexión y clave propia.</p>
+          </div>
+        )}
 
         {/* Results List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+            <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
               {error}
             </div>
           )}
@@ -188,7 +201,7 @@ export function AssistantFundamentadorDrawer({
                     rel="noopener noreferrer"
                     className="text-[10px] font-bold text-legal-golddark hover:underline flex items-center gap-0.5"
                   >
-                    <span>DOF</span>
+                    <span>Fuente oficial</span>
                     <ExternalLink size={10} />
                   </a>
                 </div>
@@ -196,6 +209,10 @@ export function AssistantFundamentadorDrawer({
                 <p className="mt-2 text-xs leading-relaxed text-slate-700 line-clamp-4">
                   {article.content}
                 </p>
+                <details className="mt-2 text-sm">
+                  <summary className="cursor-pointer py-2 font-semibold">Leer artículo completo</summary>
+                  <p className="whitespace-pre-wrap leading-relaxed">{article.content}</p>
+                </details>
 
                 <div className="mt-3 flex items-center gap-1.5 border-t border-slate-100 pt-2.5">
                   <button
@@ -243,6 +260,6 @@ export function AssistantFundamentadorDrawer({
           </span>
         </div>
       </aside>
-    </div>
+    </AccessibleDialog>
   );
 }
